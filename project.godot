@@ -14,3 +14,7 @@ config/name="Conveyors_2d"
 run/main_scene="res://godot/test/test.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
