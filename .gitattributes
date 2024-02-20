@@ -1,0 +1,4 @@
+# Normalize EOL for all files that Git considers text files.
+project.godot text=auto eol=lf
+godot/* text=auto eol=lf
+cpp_module/* text=auto eol=auto

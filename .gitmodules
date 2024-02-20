@@ -1,0 +1,3 @@
+[submodule "cpp_module/src/entity_drawer"]
+	path = cpp_module/src/entity_drawer
+	url = git@github.com:SimonPiCarter/godot_entity_drawer.git
