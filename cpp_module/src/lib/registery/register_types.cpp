@@ -5,6 +5,7 @@
 
 #include "entity_drawer/EntityDrawer.h"
 #include "entity_drawer/FramesLibrary.h"
+#include "lib/manager/LineManager.h"
 
 void initialize_conveyors_2d_module(godot::ModuleInitializationLevel p_level) {
   if (p_level != godot::ModuleInitializationLevel::MODULE_INITIALIZATION_LEVEL_SCENE) {
@@ -14,6 +15,7 @@ void initialize_conveyors_2d_module(godot::ModuleInitializationLevel p_level) {
   // REGISTER CLASSES HERE LATER
 	godot::ClassDB::register_class<godot::EntityDrawer>();
 	godot::ClassDB::register_class<godot::FramesLibrary>();
+	godot::ClassDB::register_class<godot::LineManager>();
 }
 
 void uninitialize_conveyors_2d_module(godot::ModuleInitializationLevel p_level) {

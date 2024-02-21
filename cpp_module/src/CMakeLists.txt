@@ -31,7 +31,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX src FILES ${SOURCES})
 
 add_library(conveyors_2d SHARED ${SOURCES})
-target_link_libraries(conveyors_2d PRIVATE godot::cpp flecs::flecs_static)
-target_include_directories(conveyors_2d PRIVATE ./)
+target_link_libraries(conveyors_2d PUBLIC godot::cpp flecs::flecs_static)
+target_include_directories(conveyors_2d PUBLIC ./)
+
 
 install (TARGETS conveyors_2d EXPORT ${PROJECT_NAME}-export)
