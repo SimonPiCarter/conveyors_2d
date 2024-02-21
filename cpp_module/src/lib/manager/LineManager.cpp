@@ -27,22 +27,55 @@ void LineManager::init()
 		.set<To, Position>({50, 50})
 		.set<Line>(Line(10));
 
-	flecs::entity link = ecs.entity("link")
+	flecs::entity line3 = ecs.entity("line3")
+		.set<From, Position>({50, 50})
+		.set<To, Position>({58, 50})
+		.set<Line>(Line(2));
+
+	flecs::entity line4 = ecs.entity("line4")
+		.set<From, Position>({58, 50})
+		.set<To, Position>({58, 10})
+		.set<Line>(Line(10));
+
+	flecs::entity line5 = ecs.entity("line5")
+		.set<From, Position>({58, 10})
+		.set<To, Position>({66, 10})
+		.set<Line>(Line(2));
+
+	flecs::entity line6 = ecs.entity("line6")
+		.set<From, Position>({66, 10})
+		.set<To, Position>({66, 50})
+		.set<Line>(Line(10));
+
+	ecs.entity()
 		.set<From, Position>({50, 10})
 		.set<To, Position>({50, 10})
 		.set<Line>(Line(1))
 		.set<Link>({line.get_ref<Line>(), line2.get_ref<Line>()});
 
+	ecs.entity()
+		.set<From, Position>({50, 50})
+		.set<To, Position>({50, 50})
+		.set<Line>(Line(1))
+		.set<Link>({line2.get_ref<Line>(), line3.get_ref<Line>()});
 
-	// init
-	// if(_drawer && _framesLibrary)
-	// {
-	// 	ecs.query<Drawing>()
-	// 		.each([this](Drawing& d) {
-	// 			FrameInfo const & sprite_frame = _framesLibrary->getFrameInfo("blue");
-	// 			d.idx = _drawer->add_instance(Vector2(d.x, d.y), sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
-	// 		});
-	// }
+	ecs.entity()
+		.set<From, Position>({58, 50})
+		.set<To, Position>({58, 50})
+		.set<Line>(Line(1))
+		.set<Link>({line3.get_ref<Line>(), line4.get_ref<Line>()});
+
+	ecs.entity()
+		.set<From, Position>({58, 10})
+		.set<To, Position>({58, 10})
+		.set<Line>(Line(1))
+		.set<Link>({line4.get_ref<Line>(), line5.get_ref<Line>()});
+
+	ecs.entity()
+		.set<From, Position>({66, 10})
+		.set<To, Position>({66, 10})
+		.set<Line>(Line(1))
+		.set<Link>({line5.get_ref<Line>(), line6.get_ref<Line>()});
 
 	ecs.system<Line, Link>()
 		.each([](flecs::entity const &ent, Line &line_p, Link &link_p) {
@@ -76,7 +109,7 @@ void LineManager::init()
 	ecs.system<Line, flecs::pair<From, Position> const>()
 		.with<Spawn>()
 		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p) {
-			if(can_add(line_p) && c < 1000)
+			if(can_add(line_p) && c < 10)
 			{
 				++c;
 				std::stringstream ss_l;
@@ -84,6 +117,7 @@ void LineManager::init()
 				DrawingInit drawing_l;
 				drawing_l.x = pos_p->x * world_size;
 				drawing_l.y = pos_p->y * world_size;
+				drawing_l.frame = "blue";
 				flecs::entity object = ecs.entity(ss_l.str().c_str())
 					.add<::Object>()
 					.set<DrawingInit>(drawing_l);
@@ -137,7 +171,7 @@ void LineManager::_process(double delta)
 				Drawing drawing_l;
 				drawing_l.x = init_p.x;
 				drawing_l.y = init_p.y;
-				FrameInfo const & sprite_frame = _framesLibrary->getFrameInfo("blue");
+				FrameInfo const & sprite_frame = _framesLibrary->getFrameInfo(init_p.frame);
 				drawing_l.idx = _drawer->add_instance(Vector2(drawing_l.x, drawing_l.y), sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
 				ent.set<Drawing>(drawing_l);
 				ent.remove<DrawingInit>();
