@@ -12,7 +12,9 @@ struct Position {
 	int32_t x, y;
 };
 
-struct Object {};
+struct Object {
+	int32_t type;
+};
 
 struct ItemOnLine
 {
@@ -59,6 +61,12 @@ struct Splitter {
 
 struct Merger {
 	flecs::ref<Line> prev;
+};
+
+struct Sorter {
+	flecs::ref<Line> out_type;
+	flecs::ref<Line> out_non_type;
+	int32_t type;
 };
 
 /// @brief performs a step on a given line

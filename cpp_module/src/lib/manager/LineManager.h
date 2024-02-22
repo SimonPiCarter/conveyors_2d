@@ -5,6 +5,7 @@
 
 #include <flecs.h>
 #include <thread>
+#include <random>
 #include <vector>
 #include <mutex>
 #include "entity_drawer/EntityDrawer.h"
@@ -43,8 +44,10 @@ private:
 	size_t c = 0;
 	double _elapsed = 0.;
 
-	double world_size = 6;
+	float world_size = 6;
 	double time_step = 0.1;
+
+	std::mt19937 _gen = std::mt19937(42);
 
 	flecs::world ecs;
 	flecs::query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>> update_display;

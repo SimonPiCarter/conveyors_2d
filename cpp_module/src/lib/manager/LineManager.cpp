@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <sstream>
+#include <cstdlib>
 
 namespace godot {
 
@@ -104,13 +105,13 @@ void LineManager::init()
 	{
 		pair_l = create_line(true, false, ecs, "line5", pos, 10);
 		flecs::entity line5 = pair_l.first;
-		pos.y += world_size;
+		pos.y += int32_t(world_size);
 		Position end_pos_l = pair_l.second;
 		pair_l = create_line(true, false, ecs, "line6", pos, 10);
 		flecs::entity line6 = pair_l.first;
 
 		flecs::entity splitter_l = create_link(ecs, "link5", line4, line5);
-		splitter_l.set<Splitter>({line6.get_ref<Line>()});
+		splitter_l.set<Sorter>({line6.get_ref<Line>(), line5.get_ref<Line>(), 0});
 
 		// merger
 		{
@@ -160,6 +161,22 @@ void LineManager::init()
 			}
 		});
 
+	ecs.system<Line const, Sorter const, Output>()
+		.each([](flecs::entity const &ent, Line const &line_p, Sorter const &sorter_p, Output &out_p) {
+			flecs::entity_view consumable_l = can_consume(line_p);
+			if(consumable_l)
+			{
+				if(consumable_l.get<::Object>()->type == sorter_p.type)
+				{
+					out_p.next = sorter_p.out_type;
+				}
+				else
+				{
+					out_p.next = sorter_p.out_non_type;
+				}
+			}
+		});
+
 	ecs.system<Line, Output>()
 		.each([](flecs::entity const &ent, Line &line_p, Output &out_p) {
 			Line *next_p = out_p.next.try_get();
@@ -183,9 +200,28 @@ void LineManager::init()
 				DrawingInit drawing_l;
 				drawing_l.x = pos_p->x * world_size;
 				drawing_l.y = pos_p->y * world_size;
-				drawing_l.frame = "blue";
+				std::uniform_int_distribution<> distrib(0, 4);
+				int32_t type = distrib(_gen);
+				switch(type)
+				{
+				case 0:
+					drawing_l.frame = "blue";
+					break;
+				case 1:
+					drawing_l.frame = "red";
+					break;
+				case 2:
+					drawing_l.frame = "pink";
+					break;
+				case 3:
+					drawing_l.frame = "yellow";
+					break;
+				default:
+					drawing_l.frame = "green";
+					break;
+				}
 				flecs::entity object = ecs.entity(ss_l.str().c_str())
-					.add<::Object>()
+					.set<::Object>({type})
 					.set<DrawingInit>(drawing_l);
 				add_to_start(line_p, object);
 			}
@@ -246,7 +282,7 @@ void LineManager::_process(double delta)
 
 			update_display.each([this](flecs::entity const &ent, Line const &line_p, flecs::pair<From, Position> &from_p, flecs::pair<To, Position> &to_p) {
 
-					float step_l = world_size;
+					double step_l = world_size;
 					uint32_t dist = line_p.dist_end;
 					size_t idx = line_p.first;
 					while(idx < line_p.items.size())
@@ -256,8 +292,8 @@ void LineManager::_process(double delta)
 						Drawing * drawable_l = item_l.ent.mut(ecs).get_mut<Drawing>();
 						if(drawable_l)
 						{
-							drawable_l->x = to_p->x * step_l + (from_p->x - to_p->x) * step_l * float(dist) / line_p.full_dist;
-							drawable_l->y = to_p->y * step_l + (from_p->y - to_p->y) * step_l * float(dist) / line_p.full_dist;
+							drawable_l->x = float(to_p->x * step_l + (from_p->x - to_p->x) * step_l * float(dist) / line_p.full_dist);
+							drawable_l->y = float(to_p->y * step_l + (from_p->y - to_p->y) * step_l * float(dist) / line_p.full_dist);
 
 							if(_drawer)
 							{
