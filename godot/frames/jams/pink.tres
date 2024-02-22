@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://dtdfowtheu7nq"]
+
+[ext_resource type="Texture2D" uid="uid://g2ge2vvo4iww" path="res://godot/sprites/jams/orange.png" id="1_bqqyt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bxql4"]
+atlas = ExtResource("1_bqqyt")
+region = Rect2(0, 0, 40, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bxql4")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
