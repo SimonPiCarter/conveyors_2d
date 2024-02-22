@@ -45,9 +45,20 @@ struct Line {
 
 struct Spawn {};
 
-struct Link {
+struct Input {
 	flecs::ref<Line> prev;
+};
+
+struct Output {
 	flecs::ref<Line> next;
+};
+
+struct Splitter {
+	flecs::ref<Line> next;
+};
+
+struct Merger {
+	flecs::ref<Line> prev;
 };
 
 /// @brief performs a step on a given line

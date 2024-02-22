@@ -66,7 +66,8 @@ flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::en
 		.set<From, Position>(link_from_l)
 		.set<To, Position>(link_to_l)
 		.set<Line>(line_l)
-		.set<Link>({from_p.get_ref<Line>(), to_p.get_ref<Line>()});
+		.set<Input>({from_p.get_ref<Line>()})
+		.set<Output>({to_p.get_ref<Line>()});
 
 	return link_l;
 }
@@ -99,15 +100,42 @@ void LineManager::init()
 
 	create_link(ecs, "link3", line3, line4);
 
-	pair_l = create_line(false, true, ecs, "line5", pos, 10);
-	pos = pair_l.second;
-	flecs::entity line5 = pair_l.first;
+	// splitter
+	{
+		pair_l = create_line(true, false, ecs, "line5", pos, 10);
+		flecs::entity line5 = pair_l.first;
+		pos.y += world_size;
+		Position end_pos_l = pair_l.second;
+		pair_l = create_line(true, false, ecs, "line6", pos, 10);
+		flecs::entity line6 = pair_l.first;
 
-	create_link(ecs, "link5", line4, line5);
+		flecs::entity splitter_l = create_link(ecs, "link5", line4, line5);
+		splitter_l.set<Splitter>({line6.get_ref<Line>()});
 
-	ecs.system<Line, Link>()
-		.each([](flecs::entity const &ent, Line &line_p, Link &link_p) {
-			Line *prev_p = link_p.prev.try_get();
+		// merger
+		{
+			pair_l = create_line(true, false, ecs, "line7", end_pos_l, 10);
+			flecs::entity line7 = pair_l.first;
+
+			flecs::entity splitter_l = create_link(ecs, "link6", line5, line7);
+			splitter_l.set<Merger>({line6.get_ref<Line>()});
+		}
+	}
+
+
+	ecs.system<Line const, Merger, Input>()
+		.each([](flecs::entity const &ent, Line const &line_p, Merger &merger_p, Input &in_p) {
+			Line *other_p = merger_p.prev.try_get();
+			// swap iif merger has an alternative and it can consume
+			if(other_p && can_consume(*other_p) && can_add(line_p))
+			{
+				std::swap(merger_p.prev, in_p.prev);
+			}
+		});
+
+	ecs.system<Line, Input>()
+		.each([](flecs::entity const &ent, Line &line_p, Input &in_p) {
+			Line *prev_p = in_p.prev.try_get();
 			if(prev_p)
 			{
 				if(can_consume(*prev_p) && can_add(line_p))
@@ -122,9 +150,19 @@ void LineManager::init()
 			step(line_p);
 		});
 
-	ecs.system<Line, Link>()
-		.each([](flecs::entity const &ent, Line &line_p, Link &link_p) {
-			Line *next_p = link_p.next.try_get();
+	ecs.system<Line const, Splitter, Output>()
+		.each([](flecs::entity const &ent, Line const &line_p, Splitter &splitter_p, Output &out_p) {
+			Line *other_p = splitter_p.next.try_get();
+			// swap iif splitter has an alternative and it can add
+			if(other_p && can_add(*other_p) && can_consume(line_p))
+			{
+				std::swap(splitter_p.next, out_p.next);
+			}
+		});
+
+	ecs.system<Line, Output>()
+		.each([](flecs::entity const &ent, Line &line_p, Output &out_p) {
+			Line *next_p = out_p.next.try_get();
 			if(next_p)
 			{
 				if(can_consume(line_p) && can_add(*next_p))
