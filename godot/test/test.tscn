@@ -9,3 +9,5 @@ script = ExtResource("1_ktw66")
 y_sort_enabled = true
 
 [node name="FramesLibrary" type="FramesLibrary" parent="."]
+
+[node name="LineManager" type="LineManager" parent="."]

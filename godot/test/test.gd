@@ -2,15 +2,15 @@ extends Node2D
 
 @onready var entity_drawer = $EntityDrawer
 @onready var frames_library = $FramesLibrary
-
-var pos = 50
+@onready var line_manager = $LineManager
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	entity_drawer.add_instance(Vector2(50,50), Vector2(0,0), preload("res://godot/frames/jams/blue.tres"), "default", "", false)
-	entity_drawer.set_time_step(1./16.)
+	entity_drawer.set_time_step(0.1)
 
-func _physics_process(delta):
-	pos += 1
-	entity_drawer.set_new_pos(0, Vector2(pos,50))
-	entity_drawer.update_pos()
+	frames_library.addFrame("blue", preload("res://godot/frames/jams/blue.tres"), Vector2(0,0), false)
+
+	line_manager.setEntityDrawer(entity_drawer)
+	line_manager.setFramesLibrary(frames_library)
+
+	line_manager.init()
