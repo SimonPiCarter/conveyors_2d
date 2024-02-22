@@ -12,70 +12,98 @@ LineManager::~LineManager()
 	delete _thread;
 }
 
+std::pair<flecs::entity, Position> create_line(bool horizontal, bool negative, flecs::world &ecs, std::string const &str_p, Position const &from_p, uint32_t capacity_p)
+{
+	Position to_l = from_p;
+	int32_t diff_l = capacity_p * 4;
+	if(horizontal)
+	{
+		if(negative)
+		{
+			to_l.x -= diff_l;
+		}
+		else
+		{
+			to_l.x += diff_l;
+		}
+	}
+	else
+	{
+		if(negative)
+		{
+			to_l.y -= diff_l;
+		}
+		else
+		{
+			to_l.y += diff_l;
+		}
+	}
+	flecs::entity ent_l = ecs.entity(str_p.c_str())
+			.set<From, Position>(from_p)
+			.set<To, Position>(to_l)
+			.set<Line>(Line(capacity_p));
+	return std::make_pair(
+		ent_l,
+		to_l
+	);
+}
+
+flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::entity &from_p, flecs::entity &to_p)
+{
+	Line const *line_to_l = to_p.get<Line>();
+	Position const *pos_from_l = to_p.get<From, Position>();
+	Position const *pos_to_l = to_p.get<To, Position>();
+	int32_t unitary_x_l = (pos_to_l->x - pos_from_l->x) / int32_t(get_size(*line_to_l));
+	int32_t unitary_y_l = (pos_to_l->y - pos_from_l->y) / int32_t(get_size(*line_to_l));
+	Position link_from_l = *pos_from_l;
+	Position link_to_l = *pos_from_l;
+	link_from_l.x -= unitary_x_l;
+	link_from_l.y -= unitary_y_l;
+	link_to_l.x += unitary_x_l;
+	link_to_l.y += unitary_y_l;
+	Line line_l(2);
+	flecs::entity link_l = ecs.entity(str_p.c_str())
+		.set<From, Position>(link_from_l)
+		.set<To, Position>(link_to_l)
+		.set<Line>(line_l)
+		.set<Link>({from_p.get_ref<Line>(), to_p.get_ref<Line>()});
+
+	return link_l;
+}
+
 void LineManager::init()
 {
 	UtilityFunctions::print("init");
 
-	flecs::entity line = ecs.entity("line")
-		.set<From, Position>({10, 10})
-		.set<To, Position>({50, 10})
-		.set<Line>(Line(10))
-		.add<Spawn>();
+	auto pair_l = create_line(true, false, ecs, "line", {10, 10}, 10);
+	Position pos = pair_l.second;
 
-	flecs::entity line2 = ecs.entity("line2")
-		.set<From, Position>({50, 10})
-		.set<To, Position>({50, 50})
-		.set<Line>(Line(10));
+	flecs::entity line = pair_l.first;
+	line.add<Spawn>();
 
-	flecs::entity line3 = ecs.entity("line3")
-		.set<From, Position>({50, 50})
-		.set<To, Position>({58, 50})
-		.set<Line>(Line(2));
+	pair_l = create_line(true, false, ecs, "line2", pos, 10);
+	pos = pair_l.second;
+	flecs::entity line2 = pair_l.first;
 
-	flecs::entity line4 = ecs.entity("line4")
-		.set<From, Position>({58, 50})
-		.set<To, Position>({58, 10})
-		.set<Line>(Line(10));
+	create_link(ecs, "link", line, line2);
 
-	flecs::entity line5 = ecs.entity("line5")
-		.set<From, Position>({58, 10})
-		.set<To, Position>({66, 10})
-		.set<Line>(Line(2));
+	pair_l = create_line(false, false, ecs, "line3", pos, 10);
+	pos = pair_l.second;
+	flecs::entity line3 = pair_l.first;
 
-	flecs::entity line6 = ecs.entity("line6")
-		.set<From, Position>({66, 10})
-		.set<To, Position>({66, 50})
-		.set<Line>(Line(10));
+	create_link(ecs, "link2", line2, line3);
 
-	ecs.entity()
-		.set<From, Position>({50, 10})
-		.set<To, Position>({50, 10})
-		.set<Line>(Line(1))
-		.set<Link>({line.get_ref<Line>(), line2.get_ref<Line>()});
+	pair_l = create_line(true, false, ecs, "line4", pos, 2);
+	pos = pair_l.second;
+	flecs::entity line4 = pair_l.first;
 
-	ecs.entity()
-		.set<From, Position>({50, 50})
-		.set<To, Position>({50, 50})
-		.set<Line>(Line(1))
-		.set<Link>({line2.get_ref<Line>(), line3.get_ref<Line>()});
+	create_link(ecs, "link3", line3, line4);
 
-	ecs.entity()
-		.set<From, Position>({58, 50})
-		.set<To, Position>({58, 50})
-		.set<Line>(Line(1))
-		.set<Link>({line3.get_ref<Line>(), line4.get_ref<Line>()});
+	pair_l = create_line(false, true, ecs, "line5", pos, 10);
+	pos = pair_l.second;
+	flecs::entity line5 = pair_l.first;
 
-	ecs.entity()
-		.set<From, Position>({58, 10})
-		.set<To, Position>({58, 10})
-		.set<Line>(Line(1))
-		.set<Link>({line4.get_ref<Line>(), line5.get_ref<Line>()});
-
-	ecs.entity()
-		.set<From, Position>({66, 10})
-		.set<To, Position>({66, 10})
-		.set<Line>(Line(1))
-		.set<Link>({line5.get_ref<Line>(), line6.get_ref<Line>()});
+	create_link(ecs, "link5", line4, line5);
 
 	ecs.system<Line, Link>()
 		.each([](flecs::entity const &ent, Line &line_p, Link &link_p) {
@@ -109,7 +137,7 @@ void LineManager::init()
 	ecs.system<Line, flecs::pair<From, Position> const>()
 		.with<Spawn>()
 		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p) {
-			if(can_add(line_p) && c < 10)
+			if(can_add(line_p) && c < 100)
 			{
 				++c;
 				std::stringstream ss_l;

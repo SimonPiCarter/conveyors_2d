@@ -126,6 +126,11 @@ size_t get_content_size(Line const &line_p)
 	return line_p.items.size() - line_p.free_idx.size();
 }
 
+size_t get_size(Line const &line_p)
+{
+	return line_p.items.size();
+}
+
 bool is_empty(Line const &line_p)
 {
 	return line_p.first >= line_p.items.size();

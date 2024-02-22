@@ -59,5 +59,6 @@ bool add_to_start(Line &line_p, flecs::entity_view const &item_p);
 flecs::entity_view consume(Line &line_p);
 
 size_t get_content_size(Line const &line_p);
+size_t get_size(Line const &line_p);
 
 bool is_empty(Line const &line_p);
