@@ -16,7 +16,7 @@ LineManager::~LineManager()
 std::pair<flecs::entity, Position> create_line(bool horizontal, bool negative, flecs::world &ecs, std::string const &str_p, Position const &from_p, uint32_t capacity_p)
 {
 	Position to_l = from_p;
-	int32_t diff_l = capacity_p * 4;
+	int32_t diff_l = capacity_p;
 	if(horizontal)
 	{
 		if(negative)
@@ -77,7 +77,7 @@ void LineManager::init()
 {
 	UtilityFunctions::print("init");
 
-	auto pair_l = create_line(true, false, ecs, "line", {10, 10}, 10);
+	auto pair_l = create_line(true, false, ecs, "line", {3, 3}, 10);
 	Position pos = pair_l.second;
 
 	flecs::entity line = pair_l.first;
@@ -105,7 +105,7 @@ void LineManager::init()
 	{
 		pair_l = create_line(true, false, ecs, "line5", pos, 10);
 		flecs::entity line5 = pair_l.first;
-		pos.y += int32_t(world_size);
+		pos.y += 1;
 		Position end_pos_l = pair_l.second;
 		pair_l = create_line(true, false, ecs, "line6", pos, 10);
 		flecs::entity line6 = pair_l.first;

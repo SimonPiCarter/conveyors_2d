@@ -44,7 +44,7 @@ private:
 	size_t c = 0;
 	double _elapsed = 0.;
 
-	float world_size = 6;
+	float world_size = 24;
 	double time_step = 0.1;
 
 	std::mt19937 _gen = std::mt19937(42);
