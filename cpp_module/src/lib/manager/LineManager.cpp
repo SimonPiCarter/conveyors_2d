@@ -68,7 +68,7 @@ void LineManager::init()
 	UtilityFunctions::print("init");
 
 	auto pair_l = create_line(true, false, ecs, "line", {3, 3}, 10);
-	add_line_display(world_size, *_drawer, *_framesLibrary, pair_l.first);
+	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);
 	fill(grid, pair_l.first);
 	Position pos = pair_l.second;
 
@@ -76,7 +76,7 @@ void LineManager::init()
 	line.add<Spawn>();
 
 	pair_l = create_line(true, false, ecs, "line2", pos, 10);
-	add_line_display(world_size, *_drawer, *_framesLibrary, pair_l.first);
+	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);
 	fill(grid, pair_l.first);
 	pos = pair_l.second;
 	flecs::entity line2 = pair_l.first;
@@ -185,7 +185,7 @@ void LineManager::_process(double delta)
 			std::stringstream ss_l;
 			ss_l << "line.spawned." << ++offset;
 			flecs::entity new_line_l = create_line(line_l.horizontal, line_l.negative, ecs, ss_l.str(), {line_l.x, line_l.y}, 1).first;
-			add_line_display(world_size, *_drawer, *_framesLibrary, new_line_l);
+			add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
 			fill(grid, new_line_l);
 
 			merge_around(_drawer, grid, ecs, new_line_l);
@@ -227,6 +227,8 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("init"), &LineManager::init);
 	ClassDB::bind_method(D_METHOD("setEntityDrawer", "drawer"), &LineManager::setEntityDrawer);
 	ClassDB::bind_method(D_METHOD("getEntityDrawer"), &LineManager::getEntityDrawer);
+	ClassDB::bind_method(D_METHOD("setEntityDrawer2", "drawer"), &LineManager::setEntityDrawer2);
+	ClassDB::bind_method(D_METHOD("getEntityDrawer2"), &LineManager::getEntityDrawer2);
 	ClassDB::bind_method(D_METHOD("setFramesLibrary", "library"), &LineManager::setFramesLibrary);
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
 	ClassDB::bind_method(D_METHOD("get_world_size"), &LineManager::get_world_size);
@@ -244,6 +246,15 @@ void LineManager::setEntityDrawer(EntityDrawer *drawer_p)
 EntityDrawer *LineManager::getEntityDrawer() const
 {
 	return _drawer;
+}
+
+void LineManager::setEntityDrawer2(EntityDrawer *drawer_p)
+{
+	_drawer2 = drawer_p;
+}
+EntityDrawer *LineManager::getEntityDrawer2() const
+{
+	return _drawer2;
 }
 
 void LineManager::setFramesLibrary(FramesLibrary *lib_p)

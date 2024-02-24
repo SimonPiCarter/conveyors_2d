@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var entity_drawer = $EntityDrawer
+@onready var entity_drawer_2 = $EntityDrawer2
 @onready var frames_library = $FramesLibrary
 @onready var line_manager = $LineManager
 @onready var label = $CanvasLayer/Label
@@ -20,6 +21,7 @@ func _ready():
 	frames_library.addFrame("belt", preload("res://godot/frames/belt/belt_v1.tres"), Vector2(0,0), false)
 
 	line_manager.setEntityDrawer(entity_drawer)
+	line_manager.setEntityDrawer2(entity_drawer_2)
 	line_manager.setFramesLibrary(frames_library)
 
 	line_manager.init()

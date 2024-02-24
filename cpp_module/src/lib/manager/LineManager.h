@@ -35,6 +35,9 @@ public:
 	void setEntityDrawer(EntityDrawer *drawer_p);
 	EntityDrawer *getEntityDrawer() const;
 
+	void setEntityDrawer2(EntityDrawer *drawer_p);
+	EntityDrawer *getEntityDrawer2() const;
+
 	void setFramesLibrary(FramesLibrary *lib_p);
 	FramesLibrary *getFramesLibrary() const;
 
@@ -68,6 +71,7 @@ private:
 	Grid grid = {512, 512};
 
 	EntityDrawer * _drawer = nullptr;
+	EntityDrawer * _drawer2 = nullptr;
 	FramesLibrary * _framesLibrary = nullptr;
 
 	// spawned line queue
