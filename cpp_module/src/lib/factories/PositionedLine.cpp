@@ -1,5 +1,8 @@
 #include "PositionedLine.h"
 
+#include "lib/grid/Grid.h"
+#include "lib/factories/Drawable.h"
+
 int32_t m_length(Position const & first_p, Position const & second_p)
 {
 	return std::abs(first_p.x - second_p.x) + std::abs(first_p.y - second_p.y);
@@ -34,13 +37,13 @@ PositionedLine merge_positioned_lines(RefPositionedLine const &first_p, RefPosit
 
 
 
-flecs::entity set_up_merge_entity(flecs::world &ecs, flecs::entity_view first, flecs::entity_view second)
+flecs::entity set_up_merge_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity_view first, flecs::entity_view second)
 {
 	// Merge
 	RefPositionedLine rpl {
 		*first.get<Line>(),
 		*first.get_second<From, Position>(),
-		*second.get_second<To, Position>(),
+		*first.get_second<To, Position>(),
 		first.get_second<From, Connector>()?first.get_second<From, Connector>()->ent:flecs::entity_view(),
 		first.get_second<To, Connector>()?first.get_second<To, Connector>()->ent:flecs::entity_view()
 	};
@@ -56,8 +59,34 @@ flecs::entity set_up_merge_entity(flecs::world &ecs, flecs::entity_view first, f
 	PositionedLine new_pl = merge_positioned_lines(rpl, rpl_second);
 
 	// create new merged line
-	flecs::entity new_ent_l = ecs.entity()
-			.set<PositionedLine>(new_pl)
-			.set<MergeLines>({first, second});
-	return new_ent_l;
+	return merge_lines_entity(drawer_p, grid_p, ecs, new_pl, {first, second});
+}
+
+flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, PositionedLine const &pl, MergeLines const &ml)
+{
+	flecs::entity ent = ecs.entity()
+		.set<From, Position>(pl.from)
+		.set<To, Position>(pl.to)
+		.set<Line>(pl.line);
+	fill(grid_p, ent);
+
+	// destroy items
+	clean_up_line(drawer_p, ml.first);
+	clean_up_line(drawer_p, ml.second);
+
+	if(pl.co_from)
+	{
+		replace_connectors(ent, ml.first.mut(ecs), pl.co_from.mut(ecs));
+		ent.set<From, Connector>({pl.co_from});
+	}
+	if(pl.co_to)
+	{
+		replace_connectors(ent, ml.second.mut(ecs), pl.co_to.mut(ecs));
+		ent.set<To, Connector>({pl.co_to});
+	}
+
+	ml.first.mut(ecs).destruct();
+	ml.second.mut(ecs).destruct();
+
+	return ent;
 }

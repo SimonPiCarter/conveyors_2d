@@ -4,6 +4,13 @@
 #include "Connector.h"
 #include "Line.h"
 
+namespace godot
+{
+	class EntityDrawer;
+}
+
+struct Grid;
+
 // line that need to be checked for merging
 struct FreshLine {};
 
@@ -34,4 +41,6 @@ struct MergeLines
 
 PositionedLine merge_positioned_lines(RefPositionedLine const &first_p, RefPositionedLine const &second_p);
 
-flecs::entity set_up_merge_entity(flecs::world &ecs, flecs::entity_view first, flecs::entity_view second);
+flecs::entity set_up_merge_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity_view first, flecs::entity_view second);
+
+flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, PositionedLine const &pl, MergeLines const &ml);

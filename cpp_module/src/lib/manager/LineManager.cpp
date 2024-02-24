@@ -125,41 +125,6 @@ void LineManager::init()
 	update_display = ecs.query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>>();
 	init_display = ecs.query<DrawingInit const>();
 
-	// INPUT
-
-	// new_line_system = create_merger_system(ecs, grid);
-
-	merge_line_system = ecs.system<PositionedLine const, MergeLines const>("merge_lines")
-		// .kind<Iteration>()
-		.each([this](flecs::entity& ent, PositionedLine const &pl, MergeLines const ml) {
-			ent.set<From, Position>(pl.from)
-				.set<To, Position>(pl.to)
-				.set<Line>(pl.line);
-			increment_line = ent;
-			fill(grid, ent);
-
-			ml.first.mut(ecs).destruct();
-			ml.second.mut(ecs).destruct();
-
-			// destroy items
-			clean_up_line(ml.first);
-			clean_up_line(ml.second);
-
-			if(pl.co_from)
-			{
-				replace_connectors(ent, ml.first.mut(ecs), pl.co_from.mut(ecs));
-				ent.set<From, Connector>({pl.co_from});
-			}
-			if(pl.co_to)
-			{
-				replace_connectors(ent, ml.second.mut(ecs), pl.co_to.mut(ecs));
-				ent.set<To, Connector>({pl.co_to});
-			}
-
-			ent.remove<PositionedLine>();
-			ent.remove<MergeLines>();
-		});
-
 	if(_drawer)
 	{
 		_drawer->set_time_step(time_step);
@@ -268,13 +233,13 @@ void LineManager::_process(double delta)
 			fill(grid, new_line_l);
 
 			// create new merged line
-			flecs::entity new_ent_l = set_up_merge_entity(ecs, ent_l, new_line_l);
+			flecs::entity new_ent_l = set_up_merge_entity(_drawer, grid, ecs, ent_l, new_line_l);
 			increment_line = new_ent_l;
 
 			space_pressed = false;
 		}
 
-		merge_line_system.run();
+		// merge_line_system.run();
 
 
 		// new loop
@@ -328,24 +293,6 @@ void LineManager::key_pressed(int key_p)
 	if(key_p == KEY_SPACE)
 	{
 		space_pressed = true;
-	}
-}
-
-void LineManager::clean_up_line(flecs::entity_view ent_p)
-{
-	// destroy items
-	Line const &line_l = *ent_p.get<Line>();
-	size_t idx = line_l.first;
-	while(idx < line_l.items.size())
-	{
-		ItemOnLine const &item_l = line_l.items[idx];
-
-		Drawing const * drawable_l = item_l.ent.get<Drawing>();
-		if(drawable_l)
-		{
-			_drawer->set_animation_one_shot(drawable_l->idx, StringName("default"));
-		}
-		idx = item_l.next;
 	}
 }
 

@@ -46,8 +46,6 @@ public:
 	void key_pressed(int key_p);
 
 private:
-	void clean_up_line(flecs::entity_view ent_p);
-
 	std::thread * _thread = nullptr;
 
 	bool _init = false;
