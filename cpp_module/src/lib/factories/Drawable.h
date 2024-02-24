@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 struct Drawing {
 	int idx = 0;
 	float x = 0;
