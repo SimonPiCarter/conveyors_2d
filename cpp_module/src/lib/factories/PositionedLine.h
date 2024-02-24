@@ -4,6 +4,9 @@
 #include "Connector.h"
 #include "Line.h"
 
+// line that need to be checked for merging
+struct FreshLine {};
+
 struct RefPositionedLine
 {
 	Line const&line;
@@ -30,3 +33,5 @@ struct MergeLines
 };
 
 PositionedLine merge_positioned_lines(RefPositionedLine const &first_p, RefPositionedLine const &second_p);
+
+flecs::entity set_up_merge_entity(flecs::world &ecs, flecs::entity_view first, flecs::entity_view second);

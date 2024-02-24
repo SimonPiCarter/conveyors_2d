@@ -31,3 +31,33 @@ PositionedLine merge_positioned_lines(RefPositionedLine const &first_p, RefPosit
 
 	return {true, line_l, from_l, to_l, first_p.co_from, second_p.co_to};
 }
+
+
+
+flecs::entity set_up_merge_entity(flecs::world &ecs, flecs::entity_view first, flecs::entity_view second)
+{
+	// Merge
+	RefPositionedLine rpl {
+		*first.get<Line>(),
+		*first.get_second<From, Position>(),
+		*second.get_second<To, Position>(),
+		first.get_second<From, Connector>()?first.get_second<From, Connector>()->ent:flecs::entity_view(),
+		first.get_second<To, Connector>()?first.get_second<To, Connector>()->ent:flecs::entity_view()
+	};
+
+	RefPositionedLine rpl_second {
+		*second.get<Line>(),
+		*second.get_second<From, Position>(),
+		*second.get_second<To, Position>(),
+		second.get_second<From, Connector>()?second.get_second<From, Connector>()->ent:flecs::entity_view(),
+		second.get_second<To, Connector>()?second.get_second<To, Connector>()->ent:flecs::entity_view()
+	};
+
+	PositionedLine new_pl = merge_positioned_lines(rpl, rpl_second);
+
+	// create new merged line
+	flecs::entity new_ent_l = ecs.entity()
+			.set<PositionedLine>(new_pl)
+			.set<MergeLines>({first, second});
+	return new_ent_l;
+}
