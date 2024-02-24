@@ -47,28 +47,6 @@ struct Line {
 
 struct Spawn {};
 
-struct Input {
-	flecs::ref<Line> prev;
-};
-
-struct Output {
-	flecs::ref<Line> next;
-};
-
-struct Splitter {
-	flecs::ref<Line> next;
-};
-
-struct Merger {
-	flecs::ref<Line> prev;
-};
-
-struct Sorter {
-	flecs::ref<Line> out_type;
-	flecs::ref<Line> out_non_type;
-	int32_t type;
-};
-
 /// @brief performs a step on a given line
 void step(Line &line_p);
 
@@ -81,3 +59,5 @@ size_t get_content_size(Line const &line_p);
 size_t get_size(Line const &line_p);
 
 bool is_empty(Line const &line_p);
+
+Line merge_lines(Line const &first_p, Line const &second_p);

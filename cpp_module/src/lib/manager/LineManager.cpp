@@ -6,7 +6,13 @@
 #include <sstream>
 #include <cstdlib>
 
+#include "lib/factories/PositionedLine.h"
+
 namespace godot {
+
+// System categories
+struct Display {};
+struct Iteration {};
 
 LineManager::~LineManager()
 {
@@ -70,6 +76,9 @@ flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::en
 		.set<Input>({from_p.get_ref<Line>()})
 		.set<Output>({to_p.get_ref<Line>()});
 
+	from_p.set<To, Connector>({link_l});
+	to_p.set<From, Connector>({link_l});
+
 	return link_l;
 }
 
@@ -86,45 +95,51 @@ void LineManager::init()
 	pair_l = create_line(true, false, ecs, "line2", pos, 10);
 	pos = pair_l.second;
 	flecs::entity line2 = pair_l.first;
+	increment_line = line2;
 
 	create_link(ecs, "link", line, line2);
 
-	pair_l = create_line(false, false, ecs, "line3", pos, 10);
-	pos = pair_l.second;
-	flecs::entity line3 = pair_l.first;
+	// pair_l = create_line(false, false, ecs, "line3", pos, 10);
+	// pos = pair_l.second;
+	// flecs::entity line3 = pair_l.first;
 
-	create_link(ecs, "link2", line2, line3);
+	// create_link(ecs, "link2", line2, line3);
 
-	pair_l = create_line(true, false, ecs, "line4", pos, 2);
-	pos = pair_l.second;
-	flecs::entity line4 = pair_l.first;
+	// pair_l = create_line(true, false, ecs, "line4", pos, 2);
+	// pos = pair_l.second;
+	// flecs::entity line4 = pair_l.first;
 
-	create_link(ecs, "link3", line3, line4);
+	// create_link(ecs, "link3", line3, line4);
 
-	// splitter
-	{
-		pair_l = create_line(true, false, ecs, "line5", pos, 10);
-		flecs::entity line5 = pair_l.first;
-		pos.y += 1;
-		Position end_pos_l = pair_l.second;
-		pair_l = create_line(true, false, ecs, "line6", pos, 10);
-		flecs::entity line6 = pair_l.first;
+	// // splitter
+	// {
+	// 	pair_l = create_line(true, false, ecs, "line5", pos, 10);
+	// 	flecs::entity line5 = pair_l.first;
+	// 	pos.y += 1;
+	// 	Position end_pos_l = pair_l.second;
+	// 	pair_l = create_line(true, false, ecs, "line6", pos, 10);
+	// 	flecs::entity line6 = pair_l.first;
 
-		flecs::entity splitter_l = create_link(ecs, "link5", line4, line5);
-		splitter_l.set<Sorter>({line6.get_ref<Line>(), line5.get_ref<Line>(), 0});
+	// 	flecs::entity splitter_l = create_link(ecs, "link5", line4, line5);
+	// 	splitter_l.set<Sorter>({line6.get_ref<Line>(), line5.get_ref<Line>(), 0});
+	// 	line6.set<From, Connector>({splitter_l});
 
-		// merger
-		{
-			pair_l = create_line(true, false, ecs, "line7", end_pos_l, 10);
-			flecs::entity line7 = pair_l.first;
+	// 	// merger
+	// 	{
+	// 		pair_l = create_line(true, false, ecs, "line7", end_pos_l, 10);
+	// 		flecs::entity line7 = pair_l.first;
+	// 		increment_line = line7;
+	// 		end_pos = pair_l.second;
 
-			flecs::entity splitter_l = create_link(ecs, "link6", line5, line7);
-			splitter_l.set<Merger>({line6.get_ref<Line>()});
-		}
-	}
+	// 		flecs::entity merger_l = create_link(ecs, "link6", line5, line7);
+	// 		merger_l.set<Merger>({line6.get_ref<Line>()});
+	// 		line6.set<To, Connector>({merger_l});
+	// 	}
+	// }
 
 
 	ecs.system<Line const, Merger, Input>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line const &line_p, Merger &merger_p, Input &in_p) {
 			Line *other_p = merger_p.prev.try_get();
 			// swap iif merger has an alternative and it can consume
@@ -135,6 +150,7 @@ void LineManager::init()
 		});
 
 	ecs.system<Line, Input>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line &line_p, Input &in_p) {
 			Line *prev_p = in_p.prev.try_get();
 			if(prev_p)
@@ -147,11 +163,13 @@ void LineManager::init()
 		});
 
 	ecs.system<Line>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line &line_p) {
 			step(line_p);
 		});
 
 	ecs.system<Line const, Splitter, Output>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line const &line_p, Splitter &splitter_p, Output &out_p) {
 			Line *other_p = splitter_p.next.try_get();
 			// swap iif splitter has an alternative and it can add
@@ -162,6 +180,7 @@ void LineManager::init()
 		});
 
 	ecs.system<Line const, Sorter const, Output>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line const &line_p, Sorter const &sorter_p, Output &out_p) {
 			flecs::entity_view consumable_l = can_consume(line_p);
 			if(consumable_l)
@@ -178,6 +197,7 @@ void LineManager::init()
 		});
 
 	ecs.system<Line, Output>()
+		.kind<Iteration>()
 		.each([](flecs::entity const &ent, Line &line_p, Output &out_p) {
 			Line *next_p = out_p.next.try_get();
 			if(next_p)
@@ -190,6 +210,7 @@ void LineManager::init()
 		});
 
 	ecs.system<Line, flecs::pair<From, Position> const>()
+		.kind<Iteration>()
 		.with<Spawn>()
 		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p) {
 			if(can_add(line_p) && c < 100)
@@ -226,9 +247,44 @@ void LineManager::init()
 				add_to_start(line_p, object);
 			}
 		});
+	// Create custom pipeline
+	flecs::entity iteration_pipeline = ecs.pipeline()
+		.with(flecs::System)
+		.with<Iteration>()
+		.build();
+	ecs.set_pipeline(iteration_pipeline);
+
+	// DISPLAY (TODO)
 
 	update_display = ecs.query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>>();
 	init_display = ecs.query<DrawingInit const>();
+
+	// INPUT
+
+	new_line_system = ecs.system<PositionedLine const, MergeLines const>("set_up_line")
+		.kind<Iteration>()
+		.each([this](flecs::entity& ent, PositionedLine const &pl, MergeLines const ml) {
+			ent.set<From, Position>(pl.from)
+				.set<To, Position>(pl.to)
+				.set<Line>(pl.line);
+			increment_line = ent;
+
+			ml.first.mut(ecs).destruct();
+			ml.second.mut(ecs).destruct();
+
+			if(pl.co_from)
+			{
+				replace_connectors(ent, ml.first.mut(ecs), pl.co_from.mut(ecs));
+				ent.set<From, Connector>({pl.co_from});
+			}
+			if(pl.co_to)
+			{
+				replace_connectors(ent, ml.second.mut(ecs), pl.co_to.mut(ecs));
+				ent.set<To, Connector>({pl.co_to});
+			}
+
+			ent.remove<PositionedLine>();
+		});
 
 	if(_drawer)
 	{
@@ -269,14 +325,16 @@ void LineManager::_process(double delta)
 		{
 			_thread->join();
 
-			init_display.each([this](flecs::entity &ent, DrawingInit const &init_p) {
-				Drawing drawing_l;
-				drawing_l.x = init_p.x;
-				drawing_l.y = init_p.y;
-				FrameInfo const & sprite_frame = _framesLibrary->getFrameInfo(init_p.frame);
-				drawing_l.idx = _drawer->add_instance(Vector2(drawing_l.x, drawing_l.y), sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
-				ent.set<Drawing>(drawing_l);
-				ent.remove<DrawingInit>();
+			ecs.defer([&]{
+				init_display.each([this](flecs::entity &ent, DrawingInit const &init_p) {
+					Drawing drawing_l;
+					drawing_l.x = init_p.x;
+					drawing_l.y = init_p.y;
+					FrameInfo const & sprite_frame = _framesLibrary->getFrameInfo(init_p.frame);
+					drawing_l.idx = _drawer->add_instance(Vector2(drawing_l.x, drawing_l.y), sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
+					ent.set<Drawing>(drawing_l);
+					ent.remove<DrawingInit>();
+				});
 			});
 			_drawer->update_pos();
 
@@ -307,6 +365,62 @@ void LineManager::_process(double delta)
 
 		}
 
+		if(space_pressed)
+		{
+			flecs::entity ent_l = increment_line;
+			Line const &line_l = *ent_l.get<Line>();
+			Position const * ent_pos_l = ent_l.get_second<To, Position>();
+			RefPositionedLine rpl {
+				line_l,
+				*ent_l.get_second<From, Position>(),
+				*ent_pos_l,
+				ent_l.get_second<From, Connector>()?ent_l.get_second<From, Connector>()->ent:flecs::entity_view(),
+				ent_l.get_second<To, Connector>()?ent_l.get_second<To, Connector>()->ent:flecs::entity_view()
+			};
+
+			if(!ent_pos_l)
+			{
+				std::cout<<"error"<<std::endl;
+			}
+			Position pos = *ent_pos_l;
+			std::stringstream ss_l;
+			ss_l << "line_space" << ++offset;
+			flecs::entity new_line_l = create_line(true, false, ecs, ss_l.str(), pos, 1).first;
+			RefPositionedLine rpl_second {
+				*new_line_l.get<Line>(),
+				*new_line_l.get_second<From, Position>(),
+				*new_line_l.get_second<To, Position>(),
+				new_line_l.get_second<From, Connector>()?new_line_l.get_second<From, Connector>()->ent:flecs::entity_view(),
+				new_line_l.get_second<To, Connector>()?new_line_l.get_second<To, Connector>()->ent:flecs::entity_view()
+			};
+
+			PositionedLine new_pl = merge_positioned_lines(rpl, rpl_second);
+
+			// destroy items
+			size_t idx = line_l.first;
+			while(idx < line_l.items.size())
+			{
+				ItemOnLine const &item_l = line_l.items[idx];
+
+				Drawing const * drawable_l = item_l.ent.get<Drawing>();
+				if(drawable_l)
+				{
+					_drawer->set_animation_one_shot(drawable_l->idx, StringName("default"));
+				}
+				idx = item_l.next;
+			}
+
+			// create new line
+			flecs::entity new_ent_l = ecs.entity()
+					.set<PositionedLine>(new_pl)
+					.set<MergeLines>({ent_l, new_line_l});
+
+			space_pressed = false;
+		}
+
+		new_line_system.run();
+
+
 		// new loop
 		delete _thread;
 		_thread = new std::thread(&LineManager::loop, this);
@@ -320,6 +434,7 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("getEntityDrawer"), &LineManager::getEntityDrawer);
 	ClassDB::bind_method(D_METHOD("setFramesLibrary", "library"), &LineManager::setFramesLibrary);
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
+	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
 
 	ADD_GROUP("LineManager", "LineManager_");
 }
@@ -343,5 +458,13 @@ FramesLibrary *LineManager::getFramesLibrary() const
 	return _framesLibrary;
 }
 
+void LineManager::key_pressed(int key_p)
+{
+	// space
+	if(key_p == KEY_SPACE)
+	{
+		space_pressed = true;
+	}
+}
 
 }

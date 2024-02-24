@@ -135,3 +135,8 @@ bool is_empty(Line const &line_p)
 {
 	return line_p.first >= line_p.items.size();
 }
+
+Line merge_lines(Line const &first_p, Line const &second_p)
+{
+	return Line(get_size(first_p) + get_size(second_p));
+}
