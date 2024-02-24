@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://c3u6wx23jnnt0"]
+
+[ext_resource type="Texture2D" uid="uid://duycx8hc45nbd" path="res://godot/sprites/belts/belt.png" id="1_qsegj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xugkr"]
+atlas = ExtResource("1_qsegj")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nmyvl"]
+atlas = ExtResource("1_qsegj")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m1unb"]
+atlas = ExtResource("1_qsegj")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nhvhr"]
+atlas = ExtResource("1_qsegj")
+region = Rect2(120, 0, 40, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xugkr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nmyvl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m1unb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nhvhr")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]

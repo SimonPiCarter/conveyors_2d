@@ -13,6 +13,7 @@ func _ready():
 	frames_library.addFrame("pink", preload("res://godot/frames/jams/pink.tres"), Vector2(0,0), false)
 	frames_library.addFrame("red", preload("res://godot/frames/jams/red.tres"), Vector2(0,0), false)
 	frames_library.addFrame("yellow", preload("res://godot/frames/jams/yellow.tres"), Vector2(0,0), false)
+	frames_library.addFrame("belt", preload("res://godot/frames/belt/belt_v1.tres"), Vector2(0,0), false)
 
 	line_manager.setEntityDrawer(entity_drawer)
 	line_manager.setFramesLibrary(frames_library)
