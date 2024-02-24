@@ -46,7 +46,7 @@ void iterate_on_positions(flecs::entity ent, std::function<void(Position const &
 	bool horizontal = from_l->x != to_l->x;
 
 	// no need to check when horizontal is true since we know that from_l->x == to_l->x
-	if(!horizontal && from_l->y != to_l->y)
+	if(horizontal && from_l->y != to_l->y)
 	{
 		return;
 	}
@@ -99,60 +99,116 @@ flecs::entity merge_around_pos(godot::EntityDrawer * drawer_p, Grid & grid_p, fl
 	flecs::entity left_l = grid_p.get(pos_p.x - 1, pos_p.y);
 	flecs::entity right_l = grid_p.get(pos_p.x + 1, pos_p.y);
 	// simple merge
-	if(up_l && up_l != ent && same_direction(up_l, ent))
+	if(up_l && up_l != ent)
 	{
 		Position const * to_l = up_l.get_second<To, Position>();
 		Position const * from_l = up_l.get_second<From, Position>();
 		// if position match we merge and stop
 		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, up_l, ent);
+			if(same_direction(up_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, up_l, ent);
+			}
+			else
+			{
+				create_link(ecs, "", up_l, ent);
+			}
 		}
 		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, up_l);
+			if(same_direction(up_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, up_l);
+			}
+			else
+			{
+				create_link(ecs, "", ent, up_l);
+			}
 		}
 	}
-	if(down_l && down_l != ent && same_direction(down_l, ent))
+	if(down_l && down_l != ent)
 	{
 		Position const * to_l = down_l.get_second<To, Position>();
 		Position const * from_l = down_l.get_second<From, Position>();
 		// if position match we merge and stop
 		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, down_l, ent);
+			if(same_direction(down_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, down_l, ent);
+			}
+			else
+			{
+				create_link(ecs, "", down_l, ent);
+			}
 		}
 		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, down_l);
+			if(same_direction(down_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, down_l);
+			}
+			else
+			{
+				create_link(ecs, "", ent, down_l);
+			}
 		}
 	}
-	if(left_l && left_l != ent && same_direction(left_l, ent))
+	if(left_l && left_l != ent)
 	{
 		Position const * to_l = left_l.get_second<To, Position>();
 		Position const * from_l = left_l.get_second<From, Position>();
 		// if position match we merge and stop
 		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, left_l, ent);
+			if(same_direction(left_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, left_l, ent);
+			}
+			else
+			{
+				create_link(ecs, "", left_l, ent);
+			}
 		}
 		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, left_l);
+			if(same_direction(left_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, left_l);
+			}
+			else
+			{
+				create_link(ecs, "", ent, left_l);
+			}
 		}
 	}
-	if(right_l && right_l != ent && same_direction(right_l, ent))
+	if(right_l && right_l != ent)
 	{
 		Position const * to_l = right_l.get_second<To, Position>();
 		Position const * from_l = right_l.get_second<From, Position>();
 		// if position match we merge and stop
 		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, right_l, ent);
+			if(same_direction(right_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, right_l, ent);
+			}
+			else
+			{
+				create_link(ecs, "", right_l, ent);
+			}
 		}
 		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
 		{
-			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, right_l);
+			if(same_direction(right_l, ent))
+			{
+				ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, right_l);
+			}
+			else
+			{
+				create_link(ecs, "", ent, right_l);
+			}
 		}
 	}
 	return ent;

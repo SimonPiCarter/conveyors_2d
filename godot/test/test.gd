@@ -25,7 +25,7 @@ func _ready():
 	line_manager.init()
 
 	label.text = \
-		("horizontal" if horizontal else "negative") + "\n" + \
+		("horizontal" if horizontal else "vertical") + "\n" + \
 		("negative" if negative else "positive")
 
 func _input(event):
@@ -37,13 +37,11 @@ func _input(event):
 			negative = not negative
 
 		label.text = \
-			("horizontal" if horizontal else "negative") + "\n" + \
+			("horizontal" if horizontal else "vertical") + "\n" + \
 			("negative" if negative else "positive")
 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
 		var x = int(event.global_position.x/line_manager.get_world_size())
 		var y = int(event.global_position.y/line_manager.get_world_size())
-		var horizontal = true
-		var negative = false
 		line_manager.spawn_line(x, y , horizontal, negative)
 

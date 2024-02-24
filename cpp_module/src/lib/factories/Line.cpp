@@ -1,5 +1,7 @@
 #include "Line.h"
 
+#include "Connector.h"
+
 Line::Line(uint32_t capacity_p) :
 	first(size_t(capacity_p)), dist_start(capacity_p*100), dist_end(0), full_dist(capacity_p*100)
 {
@@ -139,4 +141,31 @@ bool is_empty(Line const &line_p)
 Line merge_lines(Line const &first_p, Line const &second_p)
 {
 	return Line(get_size(first_p) + get_size(second_p));
+}
+
+flecs::entity create_link(flecs::world &ecs, std::string const &, flecs::entity &from_p, flecs::entity &to_p)
+{
+	Line const *line_to_l = to_p.get<Line>();
+	Position const *pos_from_l = to_p.get<From, Position>();
+	Position const *pos_to_l = to_p.get<To, Position>();
+	int32_t unitary_x_l = (pos_to_l->x - pos_from_l->x) / int32_t(get_size(*line_to_l));
+	int32_t unitary_y_l = (pos_to_l->y - pos_from_l->y) / int32_t(get_size(*line_to_l));
+	Position link_from_l = *pos_from_l;
+	Position link_to_l = *pos_from_l;
+	link_from_l.x -= unitary_x_l;
+	link_from_l.y -= unitary_y_l;
+	link_to_l.x += unitary_x_l;
+	link_to_l.y += unitary_y_l;
+	Line line_l(2);
+	flecs::entity link_l = ecs.entity()
+		.set<From, Position>(link_from_l)
+		.set<To, Position>(link_to_l)
+		.set<Line>(line_l)
+		.set<Input>({from_p.get_ref<Line>()})
+		.set<Output>({to_p.get_ref<Line>()});
+
+	from_p.set<To, Connector>({link_l});
+	to_p.set<From, Connector>({link_l});
+
+	return link_l;
 }

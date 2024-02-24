@@ -2,8 +2,9 @@
 
 #include "flecs.h"
 
-#include <vector>
 #include <list>
+#include <string>
+#include <vector>
 
 struct From {};
 struct To {};
@@ -69,3 +70,5 @@ size_t get_size(Line const &line_p);
 bool is_empty(Line const &line_p);
 
 Line merge_lines(Line const &first_p, Line const &second_p);
+
+flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::entity &from_p, flecs::entity &to_p);

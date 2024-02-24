@@ -63,33 +63,6 @@ void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary 
 	});
 }
 
-flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::entity &from_p, flecs::entity &to_p)
-{
-	Line const *line_to_l = to_p.get<Line>();
-	Position const *pos_from_l = to_p.get<From, Position>();
-	Position const *pos_to_l = to_p.get<To, Position>();
-	int32_t unitary_x_l = (pos_to_l->x - pos_from_l->x) / int32_t(get_size(*line_to_l));
-	int32_t unitary_y_l = (pos_to_l->y - pos_from_l->y) / int32_t(get_size(*line_to_l));
-	Position link_from_l = *pos_from_l;
-	Position link_to_l = *pos_from_l;
-	link_from_l.x -= unitary_x_l;
-	link_from_l.y -= unitary_y_l;
-	link_to_l.x += unitary_x_l;
-	link_to_l.y += unitary_y_l;
-	Line line_l(2);
-	flecs::entity link_l = ecs.entity(str_p.c_str())
-		.set<From, Position>(link_from_l)
-		.set<To, Position>(link_to_l)
-		.set<Line>(line_l)
-		.set<Input>({from_p.get_ref<Line>()})
-		.set<Output>({to_p.get_ref<Line>()});
-
-	from_p.set<To, Connector>({link_l});
-	to_p.set<From, Connector>({link_l});
-
-	return link_l;
-}
-
 void LineManager::init()
 {
 	UtilityFunctions::print("init");
