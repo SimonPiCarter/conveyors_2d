@@ -11,9 +11,6 @@ namespace godot
 
 struct Grid;
 
-// line that need to be checked for merging
-struct FreshLine {};
-
 struct RefPositionedLine
 {
 	Line const&line;

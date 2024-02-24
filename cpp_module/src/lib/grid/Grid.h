@@ -6,6 +6,11 @@
 #include "flecs.h"
 #include "lib/factories/Line.h"
 
+namespace godot
+{
+	class EntityDrawer;
+}
+
 struct Grid
 {
 	Grid(int32_t x_p, int32_t y_p);
@@ -23,4 +28,4 @@ void iterate_on_positions(flecs::entity ent, std::function<void(Position const &
 
 void fill(Grid &grid_p, flecs::entity ent);
 
-flecs::system create_merger_system(flecs::world &ecs, Grid const &grid_p);
+flecs::entity merge_around(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent);

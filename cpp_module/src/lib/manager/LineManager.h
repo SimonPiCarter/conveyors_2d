@@ -40,7 +40,7 @@ public:
 
 	float get_world_size() const { return world_size; }
 
-	void spawn_line(int x, int y);
+	void spawn_line(int x, int y, bool honrizontal_p, bool negative_p);
 
 	/// DEBUG
 	void key_pressed(int key_p);
@@ -72,7 +72,7 @@ private:
 
 	// spawned line queue
 	size_t offset = 0;
-	std::list<std::pair<int, int>> _line_spawn_queue;
+	std::list<SpawnLine> _line_spawn_queue;
 
 	// spawned line systems
 	flecs::system new_line_system;

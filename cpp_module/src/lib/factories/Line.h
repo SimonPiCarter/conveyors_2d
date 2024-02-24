@@ -24,6 +24,14 @@ struct ItemOnLine
 	int32_t dist_to_next = 0;
 };
 
+/// @brief information required to spawn a line
+struct SpawnLine {
+	int32_t x;
+	int32_t y;
+	bool horizontal = true;
+	bool negative = true;
+};
+
 struct Line {
 	Line() = default;
 	Line(uint32_t capacity_p);

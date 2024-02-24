@@ -11,3 +11,9 @@ y_sort_enabled = true
 [node name="FramesLibrary" type="FramesLibrary" parent="."]
 
 [node name="LineManager" type="LineManager" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 121.0
+offset_bottom = 82.0

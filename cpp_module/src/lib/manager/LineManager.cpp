@@ -207,14 +207,15 @@ void LineManager::_process(double delta)
 		// only dequeue one by one
 		if(!_line_spawn_queue.empty())
 		{
-			std::pair<int, int> line_l = _line_spawn_queue.front();
+			SpawnLine line_l = _line_spawn_queue.front();
 
 			std::stringstream ss_l;
 			ss_l << "line.spawned." << ++offset;
-			flecs::entity new_line_l = create_line(true, false, ecs, ss_l.str(), {line_l.first, line_l.second}, 1).first;
+			flecs::entity new_line_l = create_line(line_l.horizontal, line_l.negative, ecs, ss_l.str(), {line_l.x, line_l.y}, 1).first;
 			add_line_display(world_size, *_drawer, *_framesLibrary, new_line_l);
 			fill(grid, new_line_l);
-			new_line_l.add<FreshLine>();
+
+			merge_around(_drawer, grid, ecs, new_line_l);
 
 			_line_spawn_queue.pop_front();
 		}
@@ -233,7 +234,7 @@ void LineManager::_process(double delta)
 			fill(grid, new_line_l);
 
 			// create new merged line
-			flecs::entity new_ent_l = set_up_merge_entity(_drawer, grid, ecs, ent_l, new_line_l);
+			flecs::entity new_ent_l = merge_around(_drawer, grid, ecs, new_line_l);
 			increment_line = new_ent_l;
 
 			space_pressed = false;
@@ -256,7 +257,7 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("setFramesLibrary", "library"), &LineManager::setFramesLibrary);
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
 	ClassDB::bind_method(D_METHOD("get_world_size"), &LineManager::get_world_size);
-	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y"), &LineManager::spawn_line);
+	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
 
 	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
 
@@ -282,9 +283,9 @@ FramesLibrary *LineManager::getFramesLibrary() const
 	return _framesLibrary;
 }
 
-void LineManager::spawn_line(int x, int y)
+void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
 {
-	_line_spawn_queue.push_back(std::make_pair(x, y));
+	_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p});
 }
 
 void LineManager::key_pressed(int key_p)

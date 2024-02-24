@@ -80,50 +80,94 @@ void fill(Grid &grid_p, flecs::entity ent)
 	});
 }
 
-flecs::system create_merger_system(flecs::world &ecs, Grid const &grid_p)
+bool is_horizontal(flecs::entity ent)
 {
-	return ecs.system<flecs::pair<From, Position> const, flecs::pair<To, Position> const>("set_up_line")
-		.with<FreshLine>()
-		.each([&](flecs::entity& ent, flecs::pair<From, Position> const &from_p, flecs::pair<To, Position> const &to_p) {
-			// Position const &pos_from_l = *from_p;
-			// Position const &pos_to_l = *from_p;
+	Position const * to_l = ent.get_second<To, Position>();
+	Position const * from_l = ent.get_second<From, Position>();
+	return to_l->y == to_l->y;
+}
 
-			// flecs::entity up_l = grid_p.get(pos_l.x, pos_l.y - 1);
-			// flecs::entity down_l = grid_p.get(pos_l.x, pos_l.y - 1);
-			// flecs::entity left_l = grid_p.get(pos_l.x, pos_l.y - 1);
-			// flecs::entity right_l = grid_p.get(pos_l.x, pos_l.y - 1);
-			// // simple merge
-			// if(up_l && !down_l)
-			// {
-			// 	Position const * to_l = up_l.get_second<To, Position>();
-			// 	Position const * from_l = up_l.get_second<To, Position>();
-			// 	// if position match we merge and stop
-			// 	if(to_l && to_l->x == pos_from_l.x && to_l->y == pos_from_l.y)
-			// 	{
-			// 		set_up_merge_entity(ecs, up_l, ent)
-			// 		return;
-			// 	}
-			// 	if(from_l && from_l->x == pos_to_l.x && from_l->y == pos_to_l.y)
-			// 	{
-			// 		set_up_merge_entity(ecs, ent, up_l)
-			// 		return;
-			// 	}
-			// }
-			// if(down_l && !up_l)
-			// {
-			// 	Position const * to_l = down_l.get_second<To, Position>();
-			// 	Position const * from_l = down_l.get_second<To, Position>();
-			// 	// if position match we merge and stop
-			// 	if(to_l && to_l->x == pos_from_l.x && to_l->y == pos_from_l.y)
-			// 	{
-			// 		set_up_merge_entity(ecs, down_l, ent)
-			// 		return;
-			// 	}
-			// 	if(from_l && from_l->x == pos_to_l.x && from_l->y == pos_to_l.y)
-			// 	{
-			// 		set_up_merge_entity(ecs, ent, down_l)
-			// 		return;
-			// 	}
-			// }
-		});
+bool same_direction(flecs::entity a, flecs::entity b)
+{
+	return is_horizontal(a) == is_horizontal(b);
+}
+
+flecs::entity merge_around_pos(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent, Position const &pos_p)
+{
+	flecs::entity up_l = grid_p.get(pos_p.x, pos_p.y - 1);
+	flecs::entity down_l = grid_p.get(pos_p.x, pos_p.y + 1);
+	flecs::entity left_l = grid_p.get(pos_p.x - 1, pos_p.y);
+	flecs::entity right_l = grid_p.get(pos_p.x + 1, pos_p.y);
+	// simple merge
+	if(up_l && up_l != ent && same_direction(up_l, ent))
+	{
+		Position const * to_l = up_l.get_second<To, Position>();
+		Position const * from_l = up_l.get_second<From, Position>();
+		// if position match we merge and stop
+		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, up_l, ent);
+		}
+		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, up_l);
+		}
+	}
+	if(down_l && down_l != ent && same_direction(down_l, ent))
+	{
+		Position const * to_l = down_l.get_second<To, Position>();
+		Position const * from_l = down_l.get_second<From, Position>();
+		// if position match we merge and stop
+		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, down_l, ent);
+		}
+		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, down_l);
+		}
+	}
+	if(left_l && left_l != ent && same_direction(left_l, ent))
+	{
+		Position const * to_l = left_l.get_second<To, Position>();
+		Position const * from_l = left_l.get_second<From, Position>();
+		// if position match we merge and stop
+		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, left_l, ent);
+		}
+		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, left_l);
+		}
+	}
+	if(right_l && right_l != ent && same_direction(right_l, ent))
+	{
+		Position const * to_l = right_l.get_second<To, Position>();
+		Position const * from_l = right_l.get_second<From, Position>();
+		// if position match we merge and stop
+		if(to_l && to_l->x == pos_p.x && to_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, right_l, ent);
+		}
+		if(from_l && from_l->x == pos_p.x && from_l->y == pos_p.y)
+		{
+			ent = set_up_merge_entity(drawer_p, grid_p, ecs, ent, right_l);
+		}
+	}
+	return ent;
+}
+
+flecs::entity merge_around(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent)
+{
+	if(!ent.get_second<From, Position>()
+	|| !ent.get_second<To, Position>())
+	{
+		return ent;
+	}
+	Position const &pos_from_l = *ent.get_second<From, Position>();
+	Position const &pos_to_l = *ent.get_second<To, Position>();
+
+	flecs::entity new_ent_l = merge_around_pos(drawer_p, grid_p, ecs, ent, pos_from_l);
+	return merge_around_pos(drawer_p, grid_p, ecs, new_ent_l, pos_to_l);
 }
