@@ -84,7 +84,7 @@ bool is_horizontal(flecs::entity ent)
 {
 	Position const * to_l = ent.get_second<To, Position>();
 	Position const * from_l = ent.get_second<From, Position>();
-	return to_l->y == to_l->y;
+	return to_l->y == from_l->y;
 }
 
 bool same_direction(flecs::entity a, flecs::entity b)
