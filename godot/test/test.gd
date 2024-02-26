@@ -47,3 +47,8 @@ func _input(event):
 		var y = int(event.global_position.y/line_manager.get_world_size())
 		line_manager.spawn_line(x, y , horizontal, negative)
 
+	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+		var x = int(event.global_position.x/line_manager.get_world_size())
+		var y = int(event.global_position.y/line_manager.get_world_size())
+		line_manager.spawn_line(x, y , horizontal, negative)
+

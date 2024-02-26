@@ -115,7 +115,6 @@ void LineManager::init()
 	fill(grid, pair_l.first);
 	pos = pair_l.second;
 	flecs::entity line2 = pair_l.first;
-	increment_line = line2;
 
 	create_link(ecs, "link", line, line2);
 
@@ -213,7 +212,7 @@ void LineManager::_process(double delta)
 		}
 
 		// only dequeue one by one
-		if(!_line_spawn_queue.empty())
+		while(!_line_spawn_queue.empty())
 		{
 			SpawnLine line_l = _line_spawn_queue.front();
 
@@ -231,26 +230,6 @@ void LineManager::_process(double delta)
 			}
 
 			_line_spawn_queue.pop_front();
-		}
-
-		if(space_pressed)
-		{
-			flecs::entity ent_l = increment_line;
-			Position const * ent_pos_l = ent_l.get_second<To, Position>();
-
-			// Added new line
-			Position pos = *ent_pos_l;
-			std::stringstream ss_l;
-			ss_l << "line_space" << ++offset;
-			flecs::entity new_line_l = create_line(true, false, ecs, ss_l.str(), pos, 1).first;
-			add_line_display(world_size, *_drawer, *_framesLibrary, new_line_l);
-			fill(grid, new_line_l);
-
-			// create new merged line
-			flecs::entity new_ent_l = merge_around(_drawer, grid, ecs, new_line_l);
-			increment_line = new_ent_l;
-
-			space_pressed = false;
 		}
 
 		// merge_line_system.run();
@@ -314,11 +293,6 @@ void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
 
 void LineManager::key_pressed(int key_p)
 {
-	// space
-	if(key_p == KEY_SPACE)
-	{
-		space_pressed = true;
-	}
 }
 
 

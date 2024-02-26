@@ -3,6 +3,7 @@
 #include "Connector.h"
 #include "Drawable.h"
 #include "Line.h"
+#include "Storer.h"
 #include "lib/pipeline/PipelineSteps.h"
 
 void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::mt19937 &gen_p)
@@ -111,6 +112,20 @@ void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::m
 					.set<::Object>({type})
 					.set<DrawingInit>(drawing_l);
 				add_to_start(line_p, object);
+			}
+		});
+
+	ecs.system<Line, Storer>()
+		.kind<Iteration>()
+		.each([&](flecs::entity const &ent, Line &line_p, Storer &storer_p) {
+			if(can_consume(line_p))
+			{
+				flecs::entity_view ent_consumed_l = consume(line_p);
+				Object const *object_l = ent_consumed_l.get<Object>();
+				if(object_l)
+				{
+					add_to_storage(storer_p, object_l->type);
+				}
 			}
 		});
 }

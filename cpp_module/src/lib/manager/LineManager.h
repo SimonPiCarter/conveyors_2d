@@ -52,12 +52,6 @@ private:
 	std::thread * _thread = nullptr;
 
 	bool _init = false;
-	/// @brief TEMPORARY
-	size_t c = 0;
-	Position end_pos;
-	bool space_pressed = false;
-	flecs::entity increment_line;
-	/// END TEMPORARY
 	double _elapsed = 0.;
 
 	float world_size = 24;
@@ -75,7 +69,6 @@ private:
 	FramesLibrary * _framesLibrary = nullptr;
 
 	// spawned line queue
-	size_t offset = 0;
 	std::list<SpawnLine> _line_spawn_queue;
 
 	// spawned line systems

@@ -6,8 +6,10 @@
 script = ExtResource("1_ktw66")
 
 [node name="EntityDrawer2" type="EntityDrawer" parent="."]
+y_sort_enabled = true
 
 [node name="EntityDrawer" type="EntityDrawer" parent="."]
+y_sort_enabled = true
 
 [node name="FramesLibrary" type="FramesLibrary" parent="."]
 
