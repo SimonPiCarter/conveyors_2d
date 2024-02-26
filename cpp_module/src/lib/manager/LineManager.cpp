@@ -185,10 +185,17 @@ void LineManager::_process(double delta)
 			std::stringstream ss_l;
 			ss_l << "line.spawned." << ++offset;
 			flecs::entity new_line_l = create_line(line_l.horizontal, line_l.negative, ecs, ss_l.str(), {line_l.x, line_l.y}, 1).first;
-			add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
-			fill(grid, new_line_l);
+			if(check_line(grid, new_line_l))
+			{
+				add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
+				fill(grid, new_line_l);
 
-			merge_around(_drawer, grid, ecs, new_line_l);
+				merge_around(_drawer, grid, ecs, new_line_l);
+			}
+			else
+			{
+				new_line_l.destruct();
+			}
 
 			_line_spawn_queue.pop_front();
 		}

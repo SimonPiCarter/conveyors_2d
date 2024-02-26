@@ -27,5 +27,6 @@ private:
 void iterate_on_positions(flecs::entity ent, std::function<void(Position const &)> &&func_p);
 
 void fill(Grid &grid_p, flecs::entity ent);
+bool check_line(Grid &grid_p, flecs::entity ent);
 
 flecs::entity merge_around(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent);

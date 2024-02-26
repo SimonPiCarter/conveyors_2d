@@ -2,36 +2,36 @@
 
 [ext_resource type="Texture2D" uid="uid://duycx8hc45nbd" path="res://godot/sprites/belts/belt.png" id="1_qsegj"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xugkr"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ipgcx"]
 atlas = ExtResource("1_qsegj")
-region = Rect2(0, 0, 40, 40)
+region = Rect2(10, 10, 24, 24)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_nmyvl"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_05tx2"]
 atlas = ExtResource("1_qsegj")
-region = Rect2(40, 0, 40, 40)
+region = Rect2(50, 10, 24, 24)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_m1unb"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_wk32c"]
 atlas = ExtResource("1_qsegj")
-region = Rect2(80, 0, 40, 40)
+region = Rect2(90, 10, 24, 24)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_nhvhr"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_l1adq"]
 atlas = ExtResource("1_qsegj")
-region = Rect2(120, 0, 40, 40)
+region = Rect2(130, 10, 24, 24)
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_xugkr")
+"texture": SubResource("AtlasTexture_ipgcx")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_nmyvl")
+"texture": SubResource("AtlasTexture_05tx2")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_m1unb")
+"texture": SubResource("AtlasTexture_wk32c")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_nhvhr")
+"texture": SubResource("AtlasTexture_l1adq")
 }],
 "loop": true,
 "name": &"default",
