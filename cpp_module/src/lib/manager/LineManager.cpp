@@ -239,8 +239,6 @@ void LineManager::_process(double delta)
 			_line_spawn_queue.pop_front();
 		}
 
-		// merge_line_system.run();
-
 
 		// new loop
 		delete _thread;
