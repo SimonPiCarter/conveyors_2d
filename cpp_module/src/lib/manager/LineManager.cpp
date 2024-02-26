@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstdlib>
 
+#include "lib/factories/Storer.h"
 #include "lib/factories/PositionedLine.h"
 #include "lib/factories/FactorySystems.h"
 #include "lib/pipeline/PipelineSteps.h"
@@ -131,6 +132,7 @@ void LineManager::init()
 
 	update_display = ecs.query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>>();
 	init_display = ecs.query<DrawingInit const>();
+	consumed_objects = ecs.query<Drawing const, Consumed const>();
 
 	if(_drawer)
 	{
@@ -183,6 +185,11 @@ void LineManager::_process(double delta)
 				});
 			});
 			_drawer->update_pos();
+
+			consumed_objects.each([this](flecs::entity const &ent, Drawing const &drawing_p, Consumed const) {
+				_drawer->set_animation_one_shot(drawing_p.idx, "default");
+				ent.destruct();
+			});
 
 			update_display.each([this](flecs::entity const &ent, Line const &line_p, flecs::pair<From, Position> &from_p, flecs::pair<To, Position> &to_p) {
 

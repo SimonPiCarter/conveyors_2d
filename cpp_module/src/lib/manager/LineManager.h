@@ -62,6 +62,7 @@ private:
 	flecs::world ecs;
 	flecs::query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>> update_display;
 	flecs::query<DrawingInit const> init_display;
+	flecs::query<Drawing const, Consumed const> consumed_objects;
 	Grid grid = {512, 512};
 
 	EntityDrawer * _drawer = nullptr;

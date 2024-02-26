@@ -16,6 +16,7 @@ struct Position {
 struct Object {
 	int32_t type;
 };
+struct Consumed {};
 
 struct ItemOnLine
 {
