@@ -53,19 +53,20 @@ void iterate_on_positions(flecs::entity ent, std::function<void(Position const &
 
 	Position cur = *from_l;
 	Position target = *to_l;
+	int32_t offset = 1;
 	if(cur.x > target.x || cur.y > target.y)
 	{
-		std::swap(cur, target);
+		offset = -1;
 	}
 	while (cur.x != target.x || cur.y != target.y)
 	{
 		if(horizontal)
 		{
-			++cur.x;
+			cur.x += offset;
 		}
 		else
 		{
-			++cur.y;
+			cur.y += offset;
 		}
 
 		func_p(cur);
