@@ -54,6 +54,41 @@ std::pair<flecs::entity, Position> create_line(bool horizontal, bool negative, f
 	);
 }
 
+std::pair<flecs::entity, Position> create_unit_line(bool horizontal, bool negative, flecs::world &ecs, Position const &to_p)
+{
+	Position from_l = to_p;
+	if(horizontal)
+	{
+		if(!negative)
+		{
+			from_l.x -= 1;
+		}
+		else
+		{
+			from_l.x += 1;
+		}
+	}
+	else
+	{
+		if(!negative)
+		{
+			from_l.y -= 1;
+		}
+		else
+		{
+			from_l.y += 1;
+		}
+	}
+	flecs::entity ent_l = ecs.entity()
+			.set<From, Position>(from_l)
+			.set<To, Position>(to_p)
+			.set<Line>(Line(1));
+	return std::make_pair(
+		ent_l,
+		from_l
+	);
+}
+
 void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary &framesLibrary_p, flecs::entity ent)
 {
 	iterate_on_positions(ent, [&](Position const &pos_p) {
@@ -182,9 +217,7 @@ void LineManager::_process(double delta)
 		{
 			SpawnLine line_l = _line_spawn_queue.front();
 
-			std::stringstream ss_l;
-			ss_l << "line.spawned." << ++offset;
-			flecs::entity new_line_l = create_line(line_l.horizontal, line_l.negative, ecs, ss_l.str(), {line_l.x, line_l.y}, 1).first;
+			flecs::entity new_line_l = create_unit_line(line_l.horizontal, line_l.negative, ecs, {line_l.x, line_l.y}).first;
 			if(check_line(grid, new_line_l))
 			{
 				add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
