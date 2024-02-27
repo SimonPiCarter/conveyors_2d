@@ -85,6 +85,14 @@ flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, 
 		ent.set<To, Connector>({pl.co_to});
 	}
 
+	if(ml.first.get<Spawn>())
+	{
+		// copy seem necessary to avoid lost information
+		Spawn new_spawn_l;
+		new_spawn_l.types = ml.first.get<Spawn>()->types;
+		ent.set<Spawn>(new_spawn_l);
+	}
+
 	ml.first.mut(ecs).destruct();
 	ml.second.mut(ecs).destruct();
 

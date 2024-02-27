@@ -82,7 +82,7 @@ void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::m
 	ecs.system<Line, flecs::pair<From, Position> const, Spawn const>()
 		.kind<Iteration>()
 		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p, Spawn const &spawn_p) {
-			if(can_add(line_p))
+			if(can_add(line_p) && !spawn_p.types.empty())
 			{
 				DrawingInit drawing_l;
 				drawing_l.x = pos_p->x * world_size_p;
