@@ -108,21 +108,20 @@ void LineManager::init(int seed_p)
 	_gen = new std::mt19937(seed_p);
 
 	//// >LEVEL INSTANCE
-	auto pair_l = create_line(true, false, ecs, "line", {3, 3}, 10);
-	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);
-	fill(grid, pair_l.first);
-	Position pos = pair_l.second;
+	flecs::entity line = create_line(false, false, ecs, "line", {5, 0}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
+	line.set<Spawn>({{0}});
 
-	flecs::entity line = pair_l.first;
+	line = create_line(false, false, ecs, "line2", {10, 0}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
+	line.set<Spawn>({{1}});
+
+	line = create_line(false, false, ecs, "line3", {15, 0}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
 	line.set<Spawn>({{2}});
-
-	pair_l = create_line(true, false, ecs, "line2", pos, 10);
-	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);
-	fill(grid, pair_l.first);
-	pos = pair_l.second;
-	flecs::entity line2 = pair_l.first;
-
-	create_link(ecs, "link", line, line2);
 
 	create_factory_systems(ecs, world_size, *_gen);
 
