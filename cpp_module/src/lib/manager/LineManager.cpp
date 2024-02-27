@@ -17,6 +17,7 @@ namespace godot {
 LineManager::~LineManager()
 {
 	delete _thread;
+	delete _gen;
 }
 
 std::pair<flecs::entity, Position> create_line(bool horizontal, bool negative, flecs::world &ecs, std::string const &str_p, Position const &from_p, uint32_t capacity_p)
@@ -99,10 +100,14 @@ void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary 
 	});
 }
 
-void LineManager::init()
+void LineManager::init(int seed_p)
 {
 	UtilityFunctions::print("init");
 
+	delete _gen;
+	_gen = new std::mt19937(seed_p);
+
+	//// >LEVEL INSTANCE
 	auto pair_l = create_line(true, false, ecs, "line", {3, 3}, 10);
 	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);
 	fill(grid, pair_l.first);
@@ -119,7 +124,7 @@ void LineManager::init()
 
 	create_link(ecs, "link", line, line2);
 
-	create_factory_systems(ecs, world_size, _gen);
+	create_factory_systems(ecs, world_size, *_gen);
 
 	// Create custom pipeline
 	flecs::entity iteration_pipeline = ecs.pipeline()
@@ -263,7 +268,7 @@ void LineManager::_process(double delta)
 
 void LineManager::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("init"), &LineManager::init);
+	ClassDB::bind_method(D_METHOD("init", "seed"), &LineManager::init);
 	ClassDB::bind_method(D_METHOD("setEntityDrawer", "drawer"), &LineManager::setEntityDrawer);
 	ClassDB::bind_method(D_METHOD("getEntityDrawer"), &LineManager::getEntityDrawer);
 	ClassDB::bind_method(D_METHOD("setEntityDrawer2", "drawer"), &LineManager::setEntityDrawer2);

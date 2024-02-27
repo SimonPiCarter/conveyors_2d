@@ -24,7 +24,7 @@ class LineManager : public Node2D {
 public:
 	~LineManager();
 
-	void init();
+	void init(int seed_p);
 	void loop();
 	void _process(double delta_p) override;
 
@@ -61,7 +61,7 @@ private:
 	float world_size = 24;
 	double time_step = 0.1;
 
-	std::mt19937 _gen = std::mt19937(42);
+	std::mt19937 *_gen = nullptr;
 
 	flecs::world ecs;
 	flecs::query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>> update_display;
