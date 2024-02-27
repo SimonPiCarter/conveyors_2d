@@ -50,12 +50,26 @@ func _ready():
 	frames_library.addFrame("splitter_up_flipped", preload("res://godot/frames/belt/splitter_up_flipped_v2.tres"), Vector2(0,0), false)
 	frames_library.addFrame("splitter_up", preload("res://godot/frames/belt/splitter_up_v2.tres"), Vector2(0,0), false)
 
+	line_manager.set_max_timestamp(300)
+
 	line_manager.setEntityDrawer(entity_drawer)
 	line_manager.setEntityDrawer2(entity_drawer_2)
 	line_manager.setFramesLibrary(frames_library)
 
-	line_manager.init(42)
+	line_manager.spawn_line(5,0,false,false);
+	line_manager.spawn_line(5,1,false,false);
+	line_manager.spawn_line(5,2,false,false);
+	line_manager.add_spawn_to_line(5,0,[0],0);
+
+	line_manager.spawn_line(5,20,false,false);
+	line_manager.spawn_line(5,21,false,false);
+	line_manager.spawn_line(5,22,false,false);
+	line_manager.add_recipe_and_storer_to_line(5,22, [0], [1], 3.);
+
 	update_text()
+
+func start():
+	line_manager.init(42)
 
 func update_text():
 	var type_str = "Line"
@@ -93,6 +107,13 @@ func _input(event):
 			mode = BuildMode.Mode.SPLITTER
 		if event.keycode == KEY_E:
 			mode = BuildMode.Mode.LINE
+		if event.keycode == KEY_SPACE:
+			start()
+			if line_manager.is_over():
+				line_manager.clear_all()
+				line_manager.set_paused(true)
+			else:
+				line_manager.set_paused(line_manager.is_paused())
 
 		update_text()
 
@@ -107,5 +128,7 @@ func _input(event):
 		handle_clic(x, y)
 
 func _process(_delta):
+	var time_left = 30. - line_manager.get_timestamp()/10.
 	fps_label.text = "fps "+String.num(Engine.get_frames_per_second(), 0)+\
-		"\nscore "+String.num(line_manager.get_score())
+		"\nscore "+String.num(line_manager.get_score(),0)+\
+		"\ntime "+String.num(time_left,1)+"s"
