@@ -15,6 +15,7 @@
 #include "lib/factories/Line.h"
 #include "lib/factories/Drawable.h"
 #include "lib/grid/Grid.h"
+#include "lib/level/Level.h"
 
 namespace godot {
 
@@ -49,10 +50,11 @@ public:
 
 	/// DEBUG
 	void key_pressed(int key_p);
-	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
-	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	double get_score();
 
 private:
+	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	std::thread * _thread = nullptr;
 
 	bool _init = false;
@@ -72,6 +74,9 @@ private:
 	EntityDrawer * _drawer = nullptr;
 	EntityDrawer * _drawer2 = nullptr;
 	FramesLibrary * _framesLibrary = nullptr;
+
+	// level info
+	Level level;
 
 	// spawned queues
 	std::list<SpawnLine> _line_spawn_queue;

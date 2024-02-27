@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include "lib/factories/Storer.h"
+#include "lib/factories/recipe/Recipe.h"
 #include "lib/factories/PositionedLine.h"
 #include "lib/factories/FactorySystems.h"
 #include "lib/pipeline/PipelineSteps.h"
@@ -123,6 +124,52 @@ void LineManager::init(int seed_p)
 	fill(grid, line);
 	line.set<Spawn>({{2}});
 
+	flecs::entity storer1_l = ecs.entity("storer1")
+								.add<Storer>();
+	flecs::entity storer2_l = ecs.entity("storer2")
+								.add<Storer>();
+	flecs::entity storer3_l = ecs.entity("storer3")
+								.add<Storer>();
+
+	Recipe recipe1_l = gen_basic_recipe(*_gen, 0, {1,2}, 10, 15);
+	Recipe recipe2_l = gen_basic_recipe(*_gen, 1, {0,2}, 10, 15);
+	Recipe recipe3_l = gen_basic_recipe(*_gen, 2, {1,0}, 10, 15);
+
+	level.recipes.push_back({recipe1_l, storer1_l.get_ref<Storer>()});
+	level.recipes.push_back({recipe2_l, storer2_l.get_ref<Storer>()});
+	level.recipes.push_back({recipe3_l, storer3_l.get_ref<Storer>()});
+
+	{
+		std::stringstream ss_l;
+		ss_l<<recipe1_l;
+		UtilityFunctions::print(ss_l.str().c_str());
+	}
+	{
+		std::stringstream ss_l;
+		ss_l<<recipe2_l;
+		UtilityFunctions::print(ss_l.str().c_str());
+	}
+	{
+		std::stringstream ss_l;
+		ss_l<<recipe3_l;
+		UtilityFunctions::print(ss_l.str().c_str());
+	}
+
+	line = create_line(false, false, ecs, "line4", {5, 20}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
+	line.set<ConnectedToStorer>({storer1_l});
+
+	line = create_line(false, false, ecs, "line5", {10, 20}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
+	line.set<ConnectedToStorer>({storer2_l});
+
+	line = create_line(false, false, ecs, "line6", {15, 20}, 3).first;
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
+	fill(grid, line);
+	line.set<ConnectedToStorer>({storer3_l});
+
 	create_factory_systems(ecs, world_size, *_gen);
 
 	// Create custom pipeline
@@ -190,9 +237,11 @@ void LineManager::_process(double delta)
 			});
 			_drawer->update_pos();
 
-			consumed_objects.each([this](flecs::entity const &ent, Drawing const &drawing_p, Consumed const) {
-				_drawer->set_animation_one_shot(drawing_p.idx, "default");
-				ent.destruct();
+			ecs.defer([&]{
+				consumed_objects.each([this](flecs::entity const &ent, Drawing const &drawing_p, Consumed const) {
+					_drawer->set_animation_one_shot(drawing_p.idx, "default");
+					ent.destruct();
+				});
 			});
 
 			update_display.each([this](flecs::entity const &ent, Line const &line_p, flecs::pair<From, Position> &from_p, flecs::pair<To, Position> &to_p) {
@@ -276,8 +325,11 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
 	ClassDB::bind_method(D_METHOD("get_world_size"), &LineManager::get_world_size);
 	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
+	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_splitter);
+	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_merger);
 
 	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
+	ClassDB::bind_method(D_METHOD("get_score"), &LineManager::get_score);
 
 	ADD_GROUP("LineManager", "LineManager_");
 }
@@ -317,16 +369,26 @@ void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
 
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
-	_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, false});
+	_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
 }
 
 void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
-	_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, false});
+	_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
 }
 
 void LineManager::key_pressed(int key_p)
 {
+}
+
+double LineManager::get_score()
+{
+	double score_l = 0;
+	for(RecipePack &pack_l : level.recipes)
+	{
+		score_l += compute_value(pack_l.recipe, *pack_l.storer.try_get());
+	}
+	return score_l;
 }
 
 void LineManager::spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
