@@ -2,6 +2,7 @@
 
 #include "lib/grid/Grid.h"
 #include "lib/factories/Drawable.h"
+#include "lib/factories/Storer.h"
 
 int32_t m_length(Position const & first_p, Position const & second_p)
 {
@@ -91,6 +92,14 @@ flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, 
 		Spawn new_spawn_l;
 		new_spawn_l.types = ml.first.get<Spawn>()->types;
 		ent.set<Spawn>(new_spawn_l);
+	}
+
+	if(ml.second.get<ConnectedToStorer>())
+	{
+		// copy seem necessary to avoid lost information
+		ConnectedToStorer new_storer_l;
+		new_storer_l.storer_ent = ml.second.get<ConnectedToStorer>()->storer_ent;
+		ent.set<ConnectedToStorer>(new_storer_l);
 	}
 
 	ml.first.mut(ecs).destruct();

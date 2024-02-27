@@ -114,16 +114,18 @@ void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::m
 			}
 		});
 
-	ecs.system<Line, Storer>()
+	ecs.system<Line, ConnectedToStorer const>()
 		.kind<Iteration>()
-		.each([&](flecs::entity const &ent, Line &line_p, Storer &storer_p) {
+		.each([&](flecs::entity const &ent, Line &line_p, ConnectedToStorer const &storer_p) {
 			if(can_consume(line_p))
 			{
 				flecs::entity_view ent_consumed_l = consume(line_p);
 				Object const *object_l = ent_consumed_l.get<Object>();
-				if(object_l)
+				if(object_l && storer_p.storer_ent.get<Storer>())
 				{
-					add_to_storage(storer_p, object_l->type);
+					Storer * storer_l = storer_p.storer_ent.mut(ent).get_mut<Storer>();
+					add_to_storage(*storer_l, object_l->type);
+					ent_consumed_l.mut(ent).add<Consumed>();
 				}
 			}
 		});

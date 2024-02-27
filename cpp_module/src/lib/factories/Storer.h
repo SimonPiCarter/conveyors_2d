@@ -1,6 +1,11 @@
 #pragma once
 
+#include "flecs.h"
 #include <map>
+
+struct ConnectedToStorer {
+	flecs::entity_view storer_ent;
+};
 
 struct Storer {
 	std::map<int32_t, int32_t> quantities;
