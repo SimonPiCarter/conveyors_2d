@@ -92,11 +92,39 @@ std::pair<flecs::entity, Position> create_unit_line(bool horizontal, bool negati
 	);
 }
 
+std::string get_belt_name(flecs::entity ent)
+{
+	Position const *from_l = ent.get_second<From, Position>();
+	Position const *to_l = ent.get_second<To, Position>();
+
+	if(from_l && to_l)
+	{
+		if(from_l->x > to_l->x)
+		{
+			return "belt_left";
+		}
+		if(from_l->x < to_l->x)
+		{
+			return "belt_right";
+		}
+		if(from_l->y < to_l->y)
+		{
+			return "belt_down";
+		}
+		if(from_l->y > to_l->y)
+		{
+			return "belt_up";
+		}
+	}
+
+	return "belt";
+}
+
 void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary &framesLibrary_p, flecs::entity ent)
 {
 	iterate_on_positions(ent, [&](Position const &pos_p) {
 		Vector2 pos_instance_l { world_size_p * pos_p.x, world_size_p * pos_p.y - 1 };
-		FrameInfo const & sprite_frame = framesLibrary_p.getFrameInfo("belt");
+		FrameInfo const & sprite_frame = framesLibrary_p.getFrameInfo(get_belt_name(ent));
 		drawer_p.add_instance(pos_instance_l, sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
 	});
 }
@@ -112,17 +140,17 @@ void LineManager::init(int seed_p)
 	flecs::entity line = create_line(false, false, ecs, "line", {5, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{0}, 15, 0});
+	line.set<Spawn>({{0}, 0, 0});
 
 	line = create_line(false, false, ecs, "line2", {10, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{1}, 15, 0});
+	line.set<Spawn>({{1}, 0, 0});
 
 	line = create_line(false, false, ecs, "line3", {15, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{2}, 15, 0});
+	line.set<Spawn>({{2}, 0, 0});
 
 	flecs::entity storer1_l = ecs.entity("storer1")
 								.add<Storer>();
