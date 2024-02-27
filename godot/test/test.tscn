@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://crjsk1g1g68rw"]
+[gd_scene load_steps=3 format=3 uid="uid://crjsk1g1g68rw"]
 
 [ext_resource type="Script" path="res://godot/test/test.gd" id="1_ktw66"]
+[ext_resource type="PackedScene" uid="uid://cnek0tau6nxr4" path="res://godot/scenes/mouse/mouse_overlay/build_overlay.tscn" id="2_s4b4b"]
 
 [node name="test" type="Node2D"]
 script = ExtResource("1_ktw66")
@@ -20,3 +21,14 @@ y_sort_enabled = true
 [node name="Label" type="Label" parent="CanvasLayer"]
 offset_right = 121.0
 offset_bottom = 82.0
+
+[node name="fps_label" type="Label" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -121.0
+offset_bottom = 82.0
+grow_horizontal = 0
+horizontal_alignment = 2
+
+[node name="build_overlay" parent="." instance=ExtResource("2_s4b4b")]
