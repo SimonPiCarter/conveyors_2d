@@ -239,6 +239,14 @@ void LineManager::_process(double delta)
 			_line_spawn_queue.pop_front();
 		}
 
+		while(!_splitter_spawn_queue.empty())
+		{
+			SpawnSplitter splitter_l = _splitter_spawn_queue.front();
+
+			spawn_splitter(splitter_l.x, splitter_l.y, splitter_l.horizontal, splitter_l.negative, splitter_l.flipped);
+			_splitter_spawn_queue.pop_front();
+		}
+
 
 		// new loop
 		delete _thread;
@@ -293,12 +301,91 @@ FramesLibrary *LineManager::getFramesLibrary() const
 
 void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
 {
+	if(splitter_mode)
+	{
+		_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p, false});
+		splitter_mode = false;
+		return;
+	}
 	_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p});
 }
 
 void LineManager::key_pressed(int key_p)
 {
+	if(key_p == KEY_SPACE)
+	{
+		splitter_mode = true;
+	}
 }
 
+void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+{
+	Position pos_in_l {x,y};
+	auto &&pair_in_l = create_unit_line(horizontal_p, negative_p, ecs, pos_in_l);
+	flecs::entity line_in_l = pair_in_l.first;
+	Position pos_in_line_out_spot_l = pair_in_l.second;
+	Position pos_out_1_l {x,y};
+	Position pos_out_2_l {x,y};
+	if(horizontal_p)
+	{
+		if(negative_p)
+		{
+			pos_out_1_l.x -= 1;
+			pos_out_2_l.x -= 1;
+		}
+		else
+		{
+			pos_out_1_l.x += 1;
+			pos_out_2_l.x += 1;
+		}
+		if(flipped_p)
+		{
+			pos_out_2_l.y += 1;
+		}
+		else
+		{
+			pos_out_2_l.y -= 1;
+		}
+	}
+	else
+	{
+		if(negative_p)
+		{
+			pos_out_1_l.y -= 1;
+			pos_out_2_l.y -= 1;
+		}
+		else
+		{
+			pos_out_1_l.y += 1;
+			pos_out_2_l.y += 1;
+		}
+		if(flipped_p)
+		{
+			pos_out_2_l.x += 1;
+		}
+		else
+		{
+			pos_out_2_l.x -= 1;
+		}
+	}
+	flecs::entity line_out_1_l = create_unit_line(horizontal_p, negative_p, ecs, pos_out_1_l).first;
+	flecs::entity line_out_2_l = create_unit_line(horizontal_p, negative_p, ecs, pos_out_2_l).first;
+
+
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line_in_l);
+	fill(grid, line_in_l);
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line_out_1_l);
+	fill(grid, line_out_1_l);
+	add_line_display(world_size, *_drawer2, *_framesLibrary, line_out_2_l);
+	fill(grid, line_out_2_l);
+
+	flecs::entity splitter_l = create_link(ecs, "", line_in_l, line_out_1_l);
+	splitter_l.set<Splitter>({line_out_2_l.get_ref<Line>()});
+
+	// Merging lines
+	merge_around_to_pos(_drawer, grid, ecs, line_out_1_l, pos_out_1_l);
+	merge_around_to_pos(_drawer, grid, ecs, line_out_2_l, pos_out_2_l);
+	merge_on_from_pos(_drawer, grid, ecs, line_in_l, pos_in_line_out_spot_l);
+}
 
 }

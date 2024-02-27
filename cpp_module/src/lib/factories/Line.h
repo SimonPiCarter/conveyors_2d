@@ -33,6 +33,13 @@ struct SpawnLine {
 	bool horizontal = true;
 	bool negative = true;
 };
+struct SpawnSplitter {
+	int32_t x;
+	int32_t y;
+	bool horizontal = true;
+	bool negative = true;
+	bool flipped = true;
+};
 
 struct Line {
 	Line() = default;
