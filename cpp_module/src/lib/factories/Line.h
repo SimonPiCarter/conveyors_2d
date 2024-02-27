@@ -71,6 +71,8 @@ struct Line {
 
 struct Spawn {
 	std::vector<int32_t> types;
+	uint32_t spawn_cooldown = 0;
+	uint32_t last_spawn_timestamp = 0;
 };
 
 /// @brief performs a step on a given line

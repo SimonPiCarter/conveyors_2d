@@ -112,17 +112,17 @@ void LineManager::init(int seed_p)
 	flecs::entity line = create_line(false, false, ecs, "line", {5, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{0}});
+	line.set<Spawn>({{0}, 15, 0});
 
 	line = create_line(false, false, ecs, "line2", {10, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{1}});
+	line.set<Spawn>({{1}, 15, 0});
 
 	line = create_line(false, false, ecs, "line3", {15, 0}, 3).first;
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
 	fill(grid, line);
-	line.set<Spawn>({{2}});
+	line.set<Spawn>({{2}, 15, 0});
 
 	flecs::entity storer1_l = ecs.entity("storer1")
 								.add<Storer>();
@@ -170,7 +170,7 @@ void LineManager::init(int seed_p)
 	fill(grid, line);
 	line.set<ConnectedToStorer>({storer3_l});
 
-	create_factory_systems(ecs, world_size, *_gen);
+	create_factory_systems(ecs, _timestamp, world_size, *_gen);
 
 	// Create custom pipeline
 	flecs::entity iteration_pipeline = ecs.pipeline()
@@ -218,7 +218,7 @@ void LineManager::_process(double delta)
 	if(_elapsed >= time_step)
 	{
 		_elapsed -= time_step;
-
+		++_timestamp;
 		// finish old loop
 		if(_thread)
 		{

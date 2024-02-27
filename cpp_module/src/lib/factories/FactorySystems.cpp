@@ -6,7 +6,7 @@
 #include "Storer.h"
 #include "lib/pipeline/PipelineSteps.h"
 
-void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::mt19937 &gen_p)
+void create_factory_systems(flecs::world &ecs, uint32_t const &timestamp_p, float const &world_size_p, std::mt19937 &gen_p)
 {
 	ecs.system<Line const, Merger, Input>()
 		.kind<Iteration>()
@@ -79,11 +79,14 @@ void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::m
 			}
 		});
 
-	ecs.system<Line, flecs::pair<From, Position> const, Spawn const>()
+	ecs.system<Line, flecs::pair<From, Position> const, Spawn>()
 		.kind<Iteration>()
-		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p, Spawn const &spawn_p) {
-			if(can_add(line_p) && !spawn_p.types.empty())
+		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p, Spawn &spawn_p) {
+			if(can_add(line_p)
+			&& (timestamp_p >= spawn_p.spawn_cooldown + spawn_p.last_spawn_timestamp || spawn_p.last_spawn_timestamp == 0)
+			&& !spawn_p.types.empty())
 			{
+				spawn_p.last_spawn_timestamp = timestamp_p + 1;
 				DrawingInit drawing_l;
 				drawing_l.x = pos_p->x * world_size_p;
 				drawing_l.y = pos_p->y * world_size_p;

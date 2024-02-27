@@ -62,6 +62,7 @@ private:
 
 	float world_size = 24;
 	double time_step = 0.1;
+	uint32_t _timestamp = 0;
 
 	std::mt19937 *_gen = nullptr;
 

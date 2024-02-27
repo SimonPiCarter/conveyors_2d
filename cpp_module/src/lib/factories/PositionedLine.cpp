@@ -89,16 +89,14 @@ flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, 
 	if(ml.first.get<Spawn>())
 	{
 		// copy seem necessary to avoid lost information
-		Spawn new_spawn_l;
-		new_spawn_l.types = ml.first.get<Spawn>()->types;
+		Spawn new_spawn_l = *ml.first.get<Spawn>();
 		ent.set<Spawn>(new_spawn_l);
 	}
 
 	if(ml.second.get<ConnectedToStorer>())
 	{
 		// copy seem necessary to avoid lost information
-		ConnectedToStorer new_storer_l;
-		new_storer_l.storer_ent = ml.second.get<ConnectedToStorer>()->storer_ent;
+		ConnectedToStorer new_storer_l = *ml.second.get<ConnectedToStorer>();
 		ent.set<ConnectedToStorer>(new_storer_l);
 	}
 
