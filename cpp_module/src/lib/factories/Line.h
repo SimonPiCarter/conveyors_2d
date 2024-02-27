@@ -77,6 +77,7 @@ struct Spawn {
 
 /// @brief performs a step on a given line
 void step(Line &line_p);
+void empty_line(Line &line_p);
 
 bool can_add(Line const &line_p);
 flecs::entity_view can_consume(Line const &line_p);

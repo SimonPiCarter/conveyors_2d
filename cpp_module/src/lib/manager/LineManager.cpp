@@ -131,72 +131,25 @@ void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary 
 
 void LineManager::init(int seed_p)
 {
+	if(_init) { return; }
 	UtilityFunctions::print("init");
 
 	delete _gen;
 	_gen = new std::mt19937(seed_p);
 
 	//// >LEVEL INSTANCE
-	flecs::entity line = create_line(false, false, ecs, "line", {5, 0}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<Spawn>({{0}, 0, 0});
+	// spawn_line(5,0,false,false);
+	// spawn_line(5,1,false,false);
+	// spawn_line(5,2,false,false);
+	// TypedArray<int> array_l;	array_l.append(0);
+	// add_spawn_to_line(5,0,array_l,0);
 
-	line = create_line(false, false, ecs, "line2", {10, 0}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<Spawn>({{1}, 0, 0});
-
-	line = create_line(false, false, ecs, "line3", {15, 0}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<Spawn>({{2}, 0, 0});
-
-	flecs::entity storer1_l = ecs.entity("storer1")
-								.add<Storer>();
-	flecs::entity storer2_l = ecs.entity("storer2")
-								.add<Storer>();
-	flecs::entity storer3_l = ecs.entity("storer3")
-								.add<Storer>();
-
-	Recipe recipe1_l = gen_basic_recipe(*_gen, 0, {1,2}, 10, 15);
-	Recipe recipe2_l = gen_basic_recipe(*_gen, 1, {0,2}, 10, 15);
-	Recipe recipe3_l = gen_basic_recipe(*_gen, 2, {1,0}, 10, 15);
-
-	level.recipes.push_back({recipe1_l, storer1_l.get_ref<Storer>()});
-	level.recipes.push_back({recipe2_l, storer2_l.get_ref<Storer>()});
-	level.recipes.push_back({recipe3_l, storer3_l.get_ref<Storer>()});
-
-	{
-		std::stringstream ss_l;
-		ss_l<<recipe1_l;
-		UtilityFunctions::print(ss_l.str().c_str());
-	}
-	{
-		std::stringstream ss_l;
-		ss_l<<recipe2_l;
-		UtilityFunctions::print(ss_l.str().c_str());
-	}
-	{
-		std::stringstream ss_l;
-		ss_l<<recipe3_l;
-		UtilityFunctions::print(ss_l.str().c_str());
-	}
-
-	line = create_line(false, false, ecs, "line4", {5, 20}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<ConnectedToStorer>({storer1_l});
-
-	line = create_line(false, false, ecs, "line5", {10, 20}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<ConnectedToStorer>({storer2_l});
-
-	line = create_line(false, false, ecs, "line6", {15, 20}, 3).first;
-	add_line_display(world_size, *_drawer2, *_framesLibrary, line);
-	fill(grid, line);
-	line.set<ConnectedToStorer>({storer3_l});
+	// spawn_line(5,20,false,false);
+	// spawn_line(5,21,false,false);
+	// spawn_line(5,22,false,false);
+	// TypedArray<int> array1_l;	array1_l.append(0);
+	// TypedArray<int> array2_l;	array2_l.append(1);
+	// add_recipe_and_storer_to_line(5,22, array1_l, array2_l, 3.);
 
 	create_factory_systems(ecs, _timestamp, world_size, *_gen);
 
@@ -237,13 +190,14 @@ void LineManager::loop()
 void LineManager::_process(double delta)
 {
 	Node::_process(delta);
-	if(!_init)
+	if(!_init || _paused)
 	{
 		return;
 	}
 	_elapsed += delta;
 
-	if(_elapsed >= time_step)
+	if(_elapsed >= time_step
+	&& (_timestamp < _max_timestamp || _max_timestamp == 0))
 	{
 		_elapsed -= time_step;
 		++_timestamp;
@@ -303,20 +257,7 @@ void LineManager::_process(double delta)
 		while(!_line_spawn_queue.empty())
 		{
 			SpawnLine line_l = _line_spawn_queue.front();
-
-			flecs::entity new_line_l = create_unit_line(line_l.horizontal, line_l.negative, ecs, {line_l.x, line_l.y}).first;
-			if(check_line(grid, new_line_l))
-			{
-				add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
-				fill(grid, new_line_l);
-
-				merge_around(_drawer, grid, ecs, new_line_l);
-			}
-			else
-			{
-				new_line_l.destruct();
-			}
-
+			spawn_line_internal(line_l.x, line_l.y, line_l.horizontal, line_l.negative);
 			_line_spawn_queue.pop_front();
 		}
 
@@ -355,8 +296,16 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
 	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_splitter);
 	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_merger);
-	ClassDB::bind_method(D_METHOD("add_recipe_and_storer_to_line", "x", "y", "types", "spawn_time"), &LineManager::add_recipe_and_storer_to_line);
-	ClassDB::bind_method(D_METHOD("add_spawn_to_line", "x", "y", "types", "qty", "value"), &LineManager::add_spawn_to_line);
+	ClassDB::bind_method(D_METHOD("add_spawn_to_line", "x", "y", "types", "spawn_time"), &LineManager::add_spawn_to_line);
+	ClassDB::bind_method(D_METHOD("add_recipe_and_storer_to_line", "x", "y", "types", "qty", "value"), &LineManager::add_recipe_and_storer_to_line);
+
+	ClassDB::bind_method(D_METHOD("set_max_timestamp", "timestamp_"), &LineManager::set_max_timestamp);
+	ClassDB::bind_method(D_METHOD("get_max_timestamp"), &LineManager::get_max_timestamp);
+	ClassDB::bind_method(D_METHOD("get_timestamp"), &LineManager::get_timestamp);
+	ClassDB::bind_method(D_METHOD("is_over"), &LineManager::is_over);
+	ClassDB::bind_method(D_METHOD("set_paused", "paused"), &LineManager::set_paused);
+	ClassDB::bind_method(D_METHOD("is_paused"), &LineManager::is_over);
+	ClassDB::bind_method(D_METHOD("clear_all"), &LineManager::clear_all);
 
 	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
 	ClassDB::bind_method(D_METHOD("get_score"), &LineManager::get_score);
@@ -392,9 +341,16 @@ FramesLibrary *LineManager::getFramesLibrary() const
 	return _framesLibrary;
 }
 
-void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
+void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 {
-	_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p});
+	if(_init)
+	{
+		_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p});
+	}
+	else
+	{
+		spawn_line_internal(x, y, horizontal_p, negative_p);
+	}
 }
 
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
@@ -445,6 +401,57 @@ void LineManager::add_recipe_and_storer_to_line(int x, int y, TypedArray<int> co
 	}
 }
 
+void LineManager::set_max_timestamp(int timestamp_p)
+{
+	_max_timestamp = timestamp_p;
+}
+
+int LineManager::get_max_timestamp()
+{
+	return _max_timestamp;
+}
+
+int LineManager::get_timestamp()
+{
+	return _timestamp;
+}
+
+bool LineManager::is_over()
+{
+	return _timestamp >= _max_timestamp;
+}
+
+void LineManager::set_paused(bool paused_p)
+{
+	_paused = paused_p;
+}
+
+bool LineManager::is_paused()
+{
+	return _paused;
+}
+
+void LineManager::clear_all()
+{
+	for(RecipePack &pack_l : level.recipes)
+	{
+		Storer * store_l = pack_l.storer.try_get();
+		store_l->quantities.clear();
+	}
+
+	ecs.filter<Line>().each([this](flecs::entity ent, Line& line_p) {
+		clean_up_line(_drawer, ent);
+		empty_line(line_p);
+	});
+
+	ecs.filter<Spawn>().each([this](flecs::entity ent, Spawn& spawn_p) {
+		spawn_p.last_spawn_timestamp = 0;
+	});
+
+	_timestamp = 0;
+	_elapsed = 0;
+}
+
 void LineManager::key_pressed(int key_p)
 {
 }
@@ -457,6 +464,22 @@ double LineManager::get_score()
 		score_l += compute_value(pack_l.recipe, *pack_l.storer.try_get());
 	}
 	return score_l;
+}
+
+void LineManager::spawn_line_internal(int x, int y, bool honrizontal_p, bool negative_p)
+{
+	flecs::entity new_line_l = create_unit_line(honrizontal_p, negative_p, ecs, {x, y}).first;
+	if(check_line(grid, new_line_l))
+	{
+		add_line_display(world_size, *_drawer2, *_framesLibrary, new_line_l);
+		fill(grid, new_line_l);
+
+		merge_around(_drawer, grid, ecs, new_line_l);
+	}
+	else
+	{
+		new_line_l.destruct();
+	}
 }
 
 void LineManager::spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)

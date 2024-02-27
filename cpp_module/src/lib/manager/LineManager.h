@@ -51,21 +51,34 @@ public:
 	void add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p);
 	void add_recipe_and_storer_to_line(int x, int y, TypedArray<int> const &types_p, TypedArray<int> const &qty_p, double value_p);
 
+	void set_max_timestamp(int timestamp_p);
+	int get_max_timestamp();
+	int get_timestamp();
+
+	bool is_over();
+	void set_paused(bool paused_p);
+	bool is_paused();
+
+	void clear_all();
+
 	/// DEBUG
 	void key_pressed(int key_p);
 	double get_score();
 
 private:
+	void spawn_line_internal(int x, int y, bool honrizontal_p, bool negative_p);
 	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	std::thread * _thread = nullptr;
 
 	bool _init = false;
+	bool _paused = false;
 	double _elapsed = 0.;
 
 	float world_size = 24;
 	double time_step = 0.1;
 	uint32_t _timestamp = 0;
+	uint32_t _max_timestamp = 0;
 
 	std::mt19937 *_gen = nullptr;
 

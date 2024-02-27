@@ -52,6 +52,18 @@ void step(Line &line_p)
 	unsigned long performed_movement = line_p.speed - remaining_movement;
 	line_p.dist_start += performed_movement;
 }
+void empty_line(Line &line_p)
+{
+	line_p.free_idx.clear();
+	for(size_t i = 0 ; i < line_p.items.size(); ++i)
+	{
+		line_p.free_idx.push_back(i);
+	}
+	line_p.first = line_p.items.size();
+	line_p.dist_start = line_p.full_dist;
+	line_p.dist_end = 0;
+}
+
 bool can_add(Line const &line_p)
 {
 	if(line_p.dist_start < 100 || line_p.free_idx.size() == 0)
