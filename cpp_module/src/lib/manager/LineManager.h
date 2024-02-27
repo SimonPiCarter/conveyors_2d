@@ -48,6 +48,7 @@ public:
 	/// DEBUG
 	void key_pressed(int key_p);
 	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 
 private:
 	std::thread * _thread = nullptr;
@@ -72,10 +73,12 @@ private:
 
 	/// @brief TEMP
 	bool splitter_mode = false;
+	bool merger_mode = false;
 
 	// spawned queues
 	std::list<SpawnLine> _line_spawn_queue;
 	std::list<SpawnSplitter> _splitter_spawn_queue;
+	std::list<SpawnMerger> _merger_spawn_queue;
 
 	// spawned line systems
 	flecs::system new_line_system;
