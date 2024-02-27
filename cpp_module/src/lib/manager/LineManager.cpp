@@ -109,7 +109,7 @@ void LineManager::init()
 	Position pos = pair_l.second;
 
 	flecs::entity line = pair_l.first;
-	line.add<Spawn>();
+	line.set<Spawn>({{2}});
 
 	pair_l = create_line(true, false, ecs, "line2", pos, 10);
 	add_line_display(world_size, *_drawer2, *_framesLibrary, pair_l.first);

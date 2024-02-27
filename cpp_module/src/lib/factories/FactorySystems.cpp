@@ -79,17 +79,16 @@ void create_factory_systems(flecs::world &ecs, float const &world_size_p, std::m
 			}
 		});
 
-	ecs.system<Line, flecs::pair<From, Position> const>()
+	ecs.system<Line, flecs::pair<From, Position> const, Spawn const>()
 		.kind<Iteration>()
-		.with<Spawn>()
-		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p) {
+		.each([&](flecs::entity const &ent, Line &line_p, flecs::pair<From, Position> const &pos_p, Spawn const &spawn_p) {
 			if(can_add(line_p))
 			{
 				DrawingInit drawing_l;
 				drawing_l.x = pos_p->x * world_size_p;
 				drawing_l.y = pos_p->y * world_size_p;
-				std::uniform_int_distribution<> distrib(0, 4);
-				int32_t type = distrib(gen_p);
+				std::uniform_int_distribution<> distrib(0, spawn_p.types.size()-1);
+				int32_t type = spawn_p.types[distrib(gen_p)];
 				switch(type)
 				{
 				case 0:

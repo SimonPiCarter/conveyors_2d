@@ -69,7 +69,9 @@ struct Line {
 	uint32_t speed = 50;
 };
 
-struct Spawn {};
+struct Spawn {
+	std::vector<int32_t> types;
+};
 
 /// @brief performs a step on a given line
 void step(Line &line_p);
