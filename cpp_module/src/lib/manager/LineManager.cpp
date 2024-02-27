@@ -381,6 +381,7 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 
 	flecs::entity splitter_l = create_link(ecs, "", line_in_l, line_out_1_l);
 	splitter_l.set<Splitter>({line_out_2_l.get_ref<Line>()});
+	line_out_2_l.set<From, Connector>({splitter_l});
 
 	// Merging lines
 	merge_around_to_pos(_drawer, grid, ecs, line_out_1_l, pos_out_1_l);
