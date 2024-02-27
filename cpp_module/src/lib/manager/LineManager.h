@@ -44,11 +44,13 @@ public:
 	float get_world_size() const { return world_size; }
 
 	void spawn_line(int x, int y, bool honrizontal_p, bool negative_p);
+	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 
 	/// DEBUG
 	void key_pressed(int key_p);
-	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
-	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 
 private:
 	std::thread * _thread = nullptr;
@@ -70,10 +72,6 @@ private:
 	EntityDrawer * _drawer = nullptr;
 	EntityDrawer * _drawer2 = nullptr;
 	FramesLibrary * _framesLibrary = nullptr;
-
-	/// @brief TEMP
-	bool splitter_mode = false;
-	bool merger_mode = false;
 
 	// spawned queues
 	std::list<SpawnLine> _line_spawn_queue;

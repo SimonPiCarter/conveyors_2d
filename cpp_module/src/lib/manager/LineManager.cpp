@@ -243,7 +243,7 @@ void LineManager::_process(double delta)
 		{
 			SpawnSplitter splitter_l = _splitter_spawn_queue.front();
 
-			spawn_splitter(splitter_l.x, splitter_l.y, splitter_l.horizontal, splitter_l.negative, splitter_l.flipped);
+			spawn_splitter_internal(splitter_l.x, splitter_l.y, splitter_l.horizontal, splitter_l.negative, splitter_l.flipped);
 			_splitter_spawn_queue.pop_front();
 		}
 
@@ -251,7 +251,7 @@ void LineManager::_process(double delta)
 		{
 			SpawnMerger splitter_l = _merger_spawn_queue.front();
 
-			spawn_merger(splitter_l.x, splitter_l.y, splitter_l.horizontal, splitter_l.negative, splitter_l.flipped);
+			spawn_merger_internal(splitter_l.x, splitter_l.y, splitter_l.horizontal, splitter_l.negative, splitter_l.flipped);
 			_merger_spawn_queue.pop_front();
 		}
 
@@ -308,36 +308,24 @@ FramesLibrary *LineManager::getFramesLibrary() const
 
 void LineManager::spawn_line(int x, int y, bool honrizontal_p, bool negative_p)
 {
-	if(splitter_mode)
-	{
-		_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p, false});
-		splitter_mode = false;
-		return;
-	}
-	else if(merger_mode)
-	{
-		_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p, false});
-		merger_mode = false;
-		return;
-	}
 	_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, honrizontal_p, negative_p});
+}
+
+void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+{
+	_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, false});
+}
+
+void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+{
+	_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, false});
 }
 
 void LineManager::key_pressed(int key_p)
 {
-	if(key_p == KEY_SPACE)
-	{
-		merger_mode = false;
-		splitter_mode = true;
-	}
-	if(key_p == KEY_M)
-	{
-		merger_mode = true;
-		splitter_mode = false;
-	}
 }
 
-void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+void LineManager::spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
 	Position pos_in_l {x,y};
 	auto &&pair_in_l = create_unit_line(horizontal_p, negative_p, ecs, pos_in_l);
@@ -390,6 +378,15 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 	flecs::entity line_out_1_l = create_unit_line(horizontal_p, negative_p, ecs, pos_out_1_l).first;
 	flecs::entity line_out_2_l = create_unit_line(horizontal_p, negative_p, ecs, pos_out_2_l).first;
 
+	if(!check_line(grid, line_in_l)
+	|| !check_line(grid, line_out_1_l)
+	|| !check_line(grid, line_out_2_l))
+	{
+		line_in_l.destruct();
+		line_out_1_l.destruct();
+		line_out_2_l.destruct();
+		return;
+	}
 
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line_in_l);
 	fill(grid, line_in_l);
@@ -408,7 +405,7 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 	merge_on_from_pos(_drawer, grid, ecs, line_in_l, pos_in_line_from_spot_l);
 }
 
-void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+void LineManager::spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
 	Position pos_in_1_l {x,y};
 
@@ -462,6 +459,16 @@ void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p,
 	Position pos_in_line_2_from_spot_l = pair_in_l.second;
 
 	flecs::entity line_out_l = create_unit_line(horizontal_p, negative_p, ecs, pos_out_l).first;
+
+	if(!check_line(grid, line_in_1_l)
+	|| !check_line(grid, line_in_2_l)
+	|| !check_line(grid, line_out_l))
+	{
+		line_in_1_l.destruct();
+		line_in_2_l.destruct();
+		line_out_l.destruct();
+		return;
+	}
 
 	add_line_display(world_size, *_drawer2, *_framesLibrary, line_in_1_l);
 	fill(grid, line_in_1_l);
