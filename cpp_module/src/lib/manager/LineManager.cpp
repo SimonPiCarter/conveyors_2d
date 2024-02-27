@@ -355,6 +355,8 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
 	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_splitter);
 	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_merger);
+	ClassDB::bind_method(D_METHOD("add_recipe_and_storer_to_line", "x", "y", "types", "spawn_time"), &LineManager::add_recipe_and_storer_to_line);
+	ClassDB::bind_method(D_METHOD("add_spawn_to_line", "x", "y", "types", "qty", "value"), &LineManager::add_spawn_to_line);
 
 	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
 	ClassDB::bind_method(D_METHOD("get_score"), &LineManager::get_score);
@@ -403,6 +405,44 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
 	_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
+}
+
+void LineManager::add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p)
+{
+	flecs::entity line_l = grid.get(x, y);
+	if(line_l)
+	{
+		Spawn spawn_l;
+		for(uint64_t i = 0 ; i < types_p.size() ; ++ i)
+		{
+			spawn_l.types.push_back(types_p[i]);
+		}
+		spawn_l.spawn_cooldown = spawn_time_p;
+		line_l.set<Spawn>(spawn_l);
+	}
+}
+
+void LineManager::add_recipe_and_storer_to_line(int x, int y, TypedArray<int> const &types_p, TypedArray<int> const &qty_p, double value_p)
+{
+	flecs::entity line_l = grid.get(x, y);
+	if(line_l && types_p.size() == qty_p.size())
+	{
+		// add storer
+		flecs::entity storer_l = ecs.entity()
+									.add<Storer>();
+
+		// add recipe
+		Recipe recipe_l;
+		for(uint64_t i = 0 ; i < types_p.size() ; ++ i)
+		{
+			recipe_l.parts.push_back({types_p[i], qty_p[i]});
+		}
+		recipe_l.value = value_p;
+
+		level.recipes.push_back({recipe_l, storer_l.get_ref<Storer>()});
+
+		line_l.set<ConnectedToStorer>({storer_l});
+	}
 }
 
 void LineManager::key_pressed(int key_p)

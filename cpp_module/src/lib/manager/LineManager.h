@@ -48,6 +48,9 @@ public:
 	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 
+	void add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p);
+	void add_recipe_and_storer_to_line(int x, int y, TypedArray<int> const &types_p, TypedArray<int> const &qty_p, double value_p);
+
 	/// DEBUG
 	void key_pressed(int key_p);
 	double get_score();
