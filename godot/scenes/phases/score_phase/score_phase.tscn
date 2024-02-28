@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://budvu3q7l2dap"]
+
+[ext_resource type="Script" path="res://godot/scenes/phases/score_phase/score_phase.gd" id="1_wp7f3"]
+
+[node name="score_phase" type="Node2D"]
+script = ExtResource("1_wp7f3")

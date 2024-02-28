@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://c0wgnkq45fmoq"]
+[gd_scene load_steps=4 format=3 uid="uid://c0wgnkq45fmoq"]
 
 [ext_resource type="Script" path="res://godot/scenes/phases/build_phase/build_phase.gd" id="1_8e8gw"]
+[ext_resource type="PackedScene" uid="uid://bb00u6w7re17v" path="res://godot/scenes/UI/recipes/recipe_selector.tscn" id="2_tdsjk"]
 [ext_resource type="PackedScene" uid="uid://cnek0tau6nxr4" path="res://godot/scenes/mouse/mouse_overlay/build_overlay.tscn" id="2_wbeix"]
 
 [node name="build_phase" type="Node2D"]
@@ -11,5 +12,19 @@ script = ExtResource("1_8e8gw")
 [node name="Label" type="Label" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 23.0
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -469.0
+offset_top = -195.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="recipe_selector" parent="CanvasLayer/Panel" instance=ExtResource("2_tdsjk")]
+layout_mode = 1
 
 [node name="build_overlay" parent="." instance=ExtResource("2_wbeix")]

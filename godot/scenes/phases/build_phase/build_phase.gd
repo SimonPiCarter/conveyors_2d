@@ -1,7 +1,9 @@
-extends Node2D
+class_name PhaseStage extends Node2D
 
 @onready var label = $CanvasLayer/Label
 @onready var build_overlay = $build_overlay
+@onready var recipe_selector = $CanvasLayer/Panel/recipe_selector
+
 var line_manager : LineManager = null
 var run_info : RunInfo = null
 
@@ -68,3 +70,6 @@ func _unhandled_input(event):
 		var x = int(event.global_position.x/line_manager.get_world_size())
 		var y = int(event.global_position.y/line_manager.get_world_size())
 		handle_clic(x, y)
+
+func init():
+	recipe_selector.init(run_info)

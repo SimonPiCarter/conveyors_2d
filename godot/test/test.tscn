@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://crjsk1g1g68rw"]
 
 [ext_resource type="Script" path="res://godot/test/test.gd" id="1_ktw66"]
-[ext_resource type="PackedScene" uid="uid://bb00u6w7re17v" path="res://godot/scenes/UI/recipes/recipe_selector.tscn" id="2_hd2yh"]
+[ext_resource type="Script" path="res://godot/scripts/phase_state.gd" id="4_4d0xe"]
 [ext_resource type="PackedScene" uid="uid://c0wgnkq45fmoq" path="res://godot/scenes/phases/build_phase/build_phase.tscn" id="4_y74cj"]
 
 [node name="test" type="Node2D"]
@@ -28,18 +28,9 @@ offset_bottom = 82.0
 grow_horizontal = 0
 horizontal_alignment = 2
 
-[node name="Panel" type="Panel" parent="CanvasLayer"]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -469.0
-offset_top = -195.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="recipe_selector" parent="CanvasLayer/Panel" instance=ExtResource("2_hd2yh")]
-layout_mode = 1
-
 [node name="build_phase" parent="." instance=ExtResource("4_y74cj")]
+
+[node name="PhaseState" type="Node" parent="." node_paths=PackedStringArray("build_phase", "line_manager")]
+script = ExtResource("4_4d0xe")
+build_phase = NodePath("../build_phase")
+line_manager = NodePath("../LineManager")
