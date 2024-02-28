@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://c0wgnkq45fmoq"]
+
+[ext_resource type="Script" path="res://godot/scenes/phases/build_phase/build_phase.gd" id="1_8e8gw"]
+[ext_resource type="PackedScene" uid="uid://cnek0tau6nxr4" path="res://godot/scenes/mouse/mouse_overlay/build_overlay.tscn" id="2_wbeix"]
+
+[node name="build_phase" type="Node2D"]
+script = ExtResource("1_8e8gw")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="build_overlay" parent="." instance=ExtResource("2_wbeix")]
