@@ -30,3 +30,6 @@ struct Sorter {
 };
 
 void replace_connectors(flecs::entity new_p, flecs::entity_view old_p, flecs::entity connector_p);
+
+/// @brief remove the connector from all linked entities
+void remove_connector(flecs::entity connector_p);

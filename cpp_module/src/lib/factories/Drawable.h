@@ -2,6 +2,7 @@
 
 #include "flecs.h"
 #include <string>
+#include <vector>
 
 namespace godot
 {
@@ -20,4 +21,9 @@ struct DrawingInit {
 	std::string frame;
 };
 
+struct DrawingLine {
+	std::vector<int> indexes;
+};
+
 void clean_up_line(godot::EntityDrawer * drawer_p, flecs::entity_view ent_p);
+void remove_display_line(godot::EntityDrawer * drawer_p, flecs::entity_view ent_p);

@@ -1,5 +1,6 @@
 #include "Drawable.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
 #include "entity_drawer/EntityDrawer.h"
 #include "Line.h"
 
@@ -18,5 +19,17 @@ void clean_up_line(godot::EntityDrawer * drawer_p, flecs::entity_view ent_p)
 			drawer_p->set_animation_one_shot(drawable_l->idx, godot::StringName("default"));
 		}
 		idx = item_l.next;
+	}
+}
+
+void remove_display_line(godot::EntityDrawer * drawer_p, flecs::entity_view ent_p)
+{
+	DrawingLine const *d_line_l = ent_p.get<DrawingLine>();
+	if(d_line_l)
+	{
+		for(int idx_l : d_line_l->indexes)
+		{
+			drawer_p->set_animation_one_shot(idx_l, godot::StringName("default"));
+		}
 	}
 }

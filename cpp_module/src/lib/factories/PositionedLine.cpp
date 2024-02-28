@@ -100,6 +100,24 @@ flecs::entity merge_lines_entity(godot::EntityDrawer * drawer_p, Grid & grid_p, 
 		ent.set<ConnectedToStorer>(new_storer_l);
 	}
 
+	DrawingLine dline_l;
+	if(ml.first.get<DrawingLine>())
+	{
+		for(int idx_l : ml.first.get<DrawingLine>()->indexes)
+		{
+			dline_l.indexes.push_back(idx_l);
+		}
+	}
+	if(ml.second.get<DrawingLine>())
+	{
+		for(int idx_l : ml.second.get<DrawingLine>()->indexes)
+		{
+			dline_l.indexes.push_back(idx_l);
+		}
+	}
+
+	ent.set(dline_l);
+
 	ml.first.mut(ecs).destruct();
 	ml.second.mut(ecs).destruct();
 

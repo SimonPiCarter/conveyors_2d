@@ -33,6 +33,10 @@ struct SpawnLine {
 	bool horizontal = true;
 	bool negative = true;
 };
+struct RemoveLine {
+	int32_t x;
+	int32_t y;
+};
 struct SpawnSplitter {
 	int32_t x;
 	int32_t y;
@@ -92,3 +96,6 @@ bool is_empty(Line const &line_p);
 Line merge_lines(Line const &first_p, Line const &second_p);
 
 flecs::entity create_link(flecs::world &ecs, std::string const &str_p, flecs::entity &from_p, flecs::entity &to_p);
+void unlink_from(flecs::world &ecs, flecs::entity ent_p);
+void unlink_to(flecs::world &ecs, flecs::entity ent_p);
+void unlink(flecs::world &ecs, flecs::entity ent_p);

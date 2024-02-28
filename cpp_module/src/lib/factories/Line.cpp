@@ -181,3 +181,33 @@ flecs::entity create_link(flecs::world &ecs, std::string const &, flecs::entity 
 
 	return link_l;
 }
+
+void unlink_from(flecs::world &ecs, flecs::entity ent_p)
+{
+	Connector const * from_l = ent_p.get<From, Connector>();
+
+	if(from_l && from_l->ent)
+	{
+		flecs::entity link_l = from_l->ent.mut(ecs);
+		remove_connector(link_l);
+		link_l.destruct();
+	}
+}
+
+void unlink_to(flecs::world &ecs, flecs::entity ent_p)
+{
+	Connector const * to_l = ent_p.get<To, Connector>();
+
+	if(to_l && to_l->ent)
+	{
+		flecs::entity link_l = to_l->ent.mut(ecs);
+		remove_connector(link_l);
+		link_l.destruct();
+	}
+}
+
+void unlink(flecs::world &ecs, flecs::entity ent_p)
+{
+	unlink_from(ecs, ent_p);
+	unlink_to(ecs, ent_p);
+}

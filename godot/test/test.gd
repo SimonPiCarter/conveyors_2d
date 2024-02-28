@@ -56,6 +56,8 @@ func _ready():
 	line_manager.setEntityDrawer2(entity_drawer_2)
 	line_manager.setFramesLibrary(frames_library)
 
+	line_manager.set_build_phase(true)
+	line_manager.set_paused(true)
 	line_manager.spawn_line(5,0,false,false);
 	line_manager.spawn_line(5,1,false,false);
 	line_manager.spawn_line(5,2,false,false);
@@ -67,8 +69,6 @@ func _ready():
 	line_manager.add_recipe_and_storer_to_line(5,22, [0], [1], 3.);
 
 	update_text()
-
-func start():
 	line_manager.init(42)
 
 func update_text():
@@ -108,12 +108,14 @@ func _input(event):
 		if event.keycode == KEY_E:
 			mode = BuildMode.Mode.LINE
 		if event.keycode == KEY_SPACE:
-			start()
 			if line_manager.is_over():
 				line_manager.clear_all()
 				line_manager.set_paused(true)
+				line_manager.set_build_phase(true)
 			else:
-				line_manager.set_paused(line_manager.is_paused())
+				line_manager.set_paused(not line_manager.is_paused())
+				print("pause ", line_manager.is_paused())
+				line_manager.set_build_phase(false)
 
 		update_text()
 
@@ -121,6 +123,11 @@ func _input(event):
 		var x = int(event.global_position.x/line_manager.get_world_size())
 		var y = int(event.global_position.y/line_manager.get_world_size())
 		handle_clic(x, y)
+
+	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
+		var x = int(event.global_position.x/line_manager.get_world_size())
+		var y = int(event.global_position.y/line_manager.get_world_size())
+		line_manager.remove_line(x, y)
 
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
 		var x = int(event.global_position.x/line_manager.get_world_size())

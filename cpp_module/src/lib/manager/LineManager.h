@@ -45,6 +45,7 @@ public:
 	float get_world_size() const { return world_size; }
 
 	void spawn_line(int x, int y, bool honrizontal_p, bool negative_p);
+	void remove_line(int x, int y);
 	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 
@@ -58,6 +59,8 @@ public:
 	bool is_over();
 	void set_paused(bool paused_p);
 	bool is_paused();
+	void set_build_phase(bool build_phase_p);
+	bool is_build_phase();
 
 	void clear_all();
 
@@ -66,6 +69,7 @@ public:
 	double get_score();
 
 private:
+	void remove_line_internal(int x, int y);
 	void spawn_line_internal(int x, int y, bool honrizontal_p, bool negative_p);
 	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
@@ -73,6 +77,7 @@ private:
 
 	bool _init = false;
 	bool _paused = false;
+	bool _build_phase = false;
 	double _elapsed = 0.;
 
 	float world_size = 24;
@@ -97,6 +102,7 @@ private:
 
 	// spawned queues
 	std::list<SpawnLine> _line_spawn_queue;
+	std::list<RemoveLine> _line_remove_queue;
 	std::list<SpawnSplitter> _splitter_spawn_queue;
 	std::list<SpawnMerger> _merger_spawn_queue;
 

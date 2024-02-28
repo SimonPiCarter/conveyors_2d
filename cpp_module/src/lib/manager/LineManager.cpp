@@ -122,11 +122,14 @@ std::string get_belt_name(flecs::entity ent)
 
 void add_line_display(float world_size_p, EntityDrawer &drawer_p, FramesLibrary &framesLibrary_p, flecs::entity ent)
 {
+	DrawingLine d_line_l;
 	iterate_on_positions(ent, [&](Position const &pos_p) {
 		Vector2 pos_instance_l { world_size_p * pos_p.x, world_size_p * pos_p.y - 1 };
 		FrameInfo const & sprite_frame = framesLibrary_p.getFrameInfo(get_belt_name(ent));
-		drawer_p.add_instance(pos_instance_l, sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
+		int idx_l = drawer_p.add_instance(pos_instance_l, sprite_frame.offset, sprite_frame.sprite_frame, "default", "", false);
+		d_line_l.indexes.push_back(idx_l);
 	});
+	ent.set(d_line_l);
 }
 
 void LineManager::init(int seed_p)
@@ -190,7 +193,7 @@ void LineManager::loop()
 void LineManager::_process(double delta)
 {
 	Node::_process(delta);
-	if(!_init || _paused)
+	if(!_init || _paused || _build_phase)
 	{
 		return;
 	}
@@ -260,6 +263,12 @@ void LineManager::_process(double delta)
 			spawn_line_internal(line_l.x, line_l.y, line_l.horizontal, line_l.negative);
 			_line_spawn_queue.pop_front();
 		}
+		while(!_line_remove_queue.empty())
+		{
+			RemoveLine line_l = _line_remove_queue.front();
+			remove_line_internal(line_l.x, line_l.y);
+			_line_remove_queue.pop_front();
+		}
 
 		while(!_splitter_spawn_queue.empty())
 		{
@@ -294,6 +303,7 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
 	ClassDB::bind_method(D_METHOD("get_world_size"), &LineManager::get_world_size);
 	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
+	ClassDB::bind_method(D_METHOD("remove_line", "x", "y"), &LineManager::remove_line);
 	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_splitter);
 	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_merger);
 	ClassDB::bind_method(D_METHOD("add_spawn_to_line", "x", "y", "types", "spawn_time"), &LineManager::add_spawn_to_line);
@@ -304,7 +314,9 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_timestamp"), &LineManager::get_timestamp);
 	ClassDB::bind_method(D_METHOD("is_over"), &LineManager::is_over);
 	ClassDB::bind_method(D_METHOD("set_paused", "paused"), &LineManager::set_paused);
-	ClassDB::bind_method(D_METHOD("is_paused"), &LineManager::is_over);
+	ClassDB::bind_method(D_METHOD("is_paused"), &LineManager::is_paused);
+	ClassDB::bind_method(D_METHOD("set_build_phase", "build_phase"), &LineManager::set_build_phase);
+	ClassDB::bind_method(D_METHOD("is_build_phase"), &LineManager::is_build_phase);
 	ClassDB::bind_method(D_METHOD("clear_all"), &LineManager::clear_all);
 
 	ClassDB::bind_method(D_METHOD("key_pressed", "key"), &LineManager::key_pressed);
@@ -343,7 +355,7 @@ FramesLibrary *LineManager::getFramesLibrary() const
 
 void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 {
-	if(_init)
+	if(!_build_phase)
 	{
 		_line_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p});
 	}
@@ -353,14 +365,40 @@ void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 	}
 }
 
+void LineManager::remove_line(int x, int y)
+{
+	if(!_build_phase)
+	{
+		_line_remove_queue.push_back({(int32_t)x, (int32_t)y});
+	}
+	else
+	{
+		remove_line_internal(x, y);
+	}
+}
+
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
-	_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
+	if(!_build_phase)
+	{
+		_splitter_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
+	}
+	else
+	{
+		spawn_splitter_internal(x, y, horizontal_p, negative_p, flipped_p);
+	}
 }
 
 void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
-	_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
+	if(!_build_phase)
+	{
+		_merger_spawn_queue.push_back({(int32_t)x, (int32_t)y, horizontal_p, negative_p, flipped_p});
+	}
+	else
+	{
+		spawn_merger_internal(x, y, horizontal_p, negative_p, flipped_p);
+	}
 }
 
 void LineManager::add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p)
@@ -431,6 +469,16 @@ bool LineManager::is_paused()
 	return _paused;
 }
 
+void LineManager::set_build_phase(bool build_phase_p)
+{
+	_build_phase = build_phase_p;
+}
+
+bool LineManager::is_build_phase()
+{
+	return _build_phase;
+}
+
 void LineManager::clear_all()
 {
 	for(RecipePack &pack_l : level.recipes)
@@ -479,6 +527,117 @@ void LineManager::spawn_line_internal(int x, int y, bool honrizontal_p, bool neg
 	else
 	{
 		new_line_l.destruct();
+	}
+}
+
+void LineManager::remove_line_internal(int x, int y)
+{
+	flecs::entity ent_l = grid.get(x, y);
+	if(ent_l)
+	{
+		clean_up_line(_drawer, ent_l);
+		remove_display_line(_drawer2, ent_l);
+		Position pos_from_l = *ent_l.get<From, Position>();
+		Position pos_to_l = *ent_l.get<To, Position>();
+		Line const *line_l = ent_l.get<Line>();
+		size_t line_size = get_size(*line_l);
+		bool horizontal_l = pos_to_l.y == pos_from_l.y;
+
+		if(line_l && line_size == 1)
+		{
+			// delete line
+			if(ent_l.get<From, Connector>())
+			{
+				unlink(ecs, ent_l);
+			}
+		}
+		else
+		{
+			uint32_t size_from_l = 0;
+			uint32_t size_to_l = 0;
+			Position new_to_l = pos_from_l;
+			Position new_from_l = pos_to_l;
+			if(horizontal_l)
+			{
+				new_from_l.x = x;
+				if(new_to_l.x < new_from_l.x)
+				{
+					new_to_l.x = x-1;
+				}
+				else
+				{
+					new_to_l.x = x+1;
+				}
+				size_from_l = new_to_l.x - pos_from_l.x;
+				size_to_l = pos_to_l.x - new_from_l.x;
+			}
+			else
+			{
+				new_from_l.y = y;
+				if(new_to_l.y < new_from_l.y)
+				{
+					new_to_l.y = y-1;
+				}
+				else
+				{
+					new_to_l.y = y+1;
+				}
+				size_from_l = new_to_l.y - pos_from_l.y;
+				size_to_l = pos_to_l.y - new_from_l.y;
+			}
+			// split line
+
+			if(size_from_l > 0)
+			{
+				flecs::entity from_l = ecs.entity()
+						.set<From, Position>(pos_from_l)
+						.set<To, Position>(new_to_l)
+						.set<Line>(Line(size_from_l));
+				add_line_display(world_size, *_drawer2, *_framesLibrary, from_l);
+				fill(grid, from_l);
+				if(ent_l.get<From, Connector>())
+				{
+					replace_connectors(from_l, ent_l, ent_l.get<From, Connector>()->ent.mut(ecs));
+				}
+
+				if(ent_l.get<Spawn>())
+				{
+					// copy seem necessary to avoid lost information
+					Spawn new_spawn_l = *ent_l.get<Spawn>();
+					from_l.set<Spawn>(new_spawn_l);
+				}
+			}
+			else
+			{
+				unlink_from(ecs, ent_l);
+			}
+
+			if(size_to_l > 0)
+			{
+				flecs::entity to_l = ecs.entity()
+						.set<From, Position>(new_from_l)
+						.set<To, Position>(pos_to_l)
+						.set<Line>(Line(size_to_l));
+				add_line_display(world_size, *_drawer2, *_framesLibrary, to_l);
+				fill(grid, to_l);
+				if(ent_l.get<To, Connector>())
+				{
+					replace_connectors(to_l, ent_l, ent_l.get<To, Connector>()->ent.mut(ecs));
+				}
+				if(ent_l.get<ConnectedToStorer>())
+				{
+					// copy seem necessary to avoid lost information
+					ConnectedToStorer new_storer_l = *ent_l.get<ConnectedToStorer>();
+					to_l.set<ConnectedToStorer>(new_storer_l);
+				}
+			}
+			else
+			{
+				unlink_to(ecs, ent_l);
+			}
+		}
+		grid.unset(x, y);
+		ent_l.destruct();
 	}
 }
 
