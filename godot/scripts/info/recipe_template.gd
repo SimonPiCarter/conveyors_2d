@@ -4,7 +4,7 @@ var types: Array[int] = []
 var quantities: Array[int] = []
 var value: float = 0
 
-func get_name() -> String:
+func gen_name() -> String:
 	var dict = {}
 	for i in range(0, types.size()):
 		dict[types[i]] = quantities[i]

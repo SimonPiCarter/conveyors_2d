@@ -12,7 +12,7 @@ func apply_to_run(run : RunInfo):
 	run.spawns.append(spawn)
 	run.recipes.append(recipe)
 
-static func gen_line(run : RunInfo) -> NewLineBonus:
+static func gen_bonus(run : RunInfo) -> NewLineBonus:
 	var new_line = NewLineBonus.new()
 
 	var types : Array[int] = []

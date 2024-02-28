@@ -60,7 +60,7 @@ func _ready():
 	line_manager.set_build_phase(true)
 	line_manager.set_paused(true)
 
-	var new_line = NewLineBonus.gen_line(run_info)
+	var new_line = NewLineBonus.gen_bonus(run_info)
 	new_line.apply_to_run(run_info)
 
 	run_info.init(line_manager)
@@ -110,8 +110,11 @@ func _input(event):
 				line_manager.set_paused(true)
 				line_manager.set_build_phase(true)
 
-				var new_line = NewLineBonus.gen_line(run_info)
+				var new_line = NewLineBonus.gen_bonus(run_info)
 				new_line.apply_to_run(run_info)
+
+				var imp_recipe = ImproveRecipeBonus.gen_bonus(run_info)
+				imp_recipe.apply_to_run(run_info)
 
 				run_info.init(line_manager)
 				run_info.print_run()
