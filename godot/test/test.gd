@@ -7,6 +7,7 @@ extends Node2D
 @onready var label = $CanvasLayer/Label
 @onready var fps_label = $CanvasLayer/fps_label
 @onready var build_overlay = $build_overlay
+@onready var recipe_selector = $CanvasLayer/Panel/recipe_selector
 
 var run_info = RunInfo.new()
 
@@ -65,6 +66,7 @@ func _ready():
 
 	run_info.init(line_manager)
 
+	recipe_selector.init(run_info)
 	update_text()
 	line_manager.init(42)
 
@@ -89,7 +91,7 @@ func handle_clic(x, y):
 	else:
 		line_manager.spawn_line(x, y , horizontal, negative)
 
-func _input(event):
+func _unhandled_input(event):
 	if event is InputEventKey and event.is_pressed():
 		line_manager.key_pressed(event.keycode)
 		if event.keycode == KEY_R:
@@ -116,8 +118,11 @@ func _input(event):
 				var imp_recipe = ImproveRecipeBonus.gen_bonus(run_info)
 				imp_recipe.apply_to_run(run_info)
 
+				print(NewRecipeBonus.gen_bonus(run_info).template.gen_name())
+
 				run_info.init(line_manager)
-				run_info.print_run()
+				recipe_selector.init(run_info)
+				# run_info.print_run()
 			else:
 				line_manager.set_paused(not line_manager.is_paused())
 				print("pause ", line_manager.is_paused())

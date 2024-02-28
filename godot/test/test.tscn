@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://crjsk1g1g68rw"]
+[gd_scene load_steps=4 format=3 uid="uid://crjsk1g1g68rw"]
 
 [ext_resource type="Script" path="res://godot/test/test.gd" id="1_ktw66"]
+[ext_resource type="PackedScene" uid="uid://bb00u6w7re17v" path="res://godot/scenes/UI/recipes/recipe_selector.tscn" id="2_hd2yh"]
 [ext_resource type="PackedScene" uid="uid://cnek0tau6nxr4" path="res://godot/scenes/mouse/mouse_overlay/build_overlay.tscn" id="2_s4b4b"]
 
 [node name="test" type="Node2D"]
@@ -19,8 +20,8 @@ y_sort_enabled = true
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Label" type="Label" parent="CanvasLayer"]
-offset_right = 121.0
-offset_bottom = 82.0
+offset_right = 90.0
+offset_bottom = 80.0
 
 [node name="fps_label" type="Label" parent="CanvasLayer"]
 anchors_preset = 1
@@ -30,5 +31,19 @@ offset_left = -121.0
 offset_bottom = 82.0
 grow_horizontal = 0
 horizontal_alignment = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -469.0
+offset_top = -195.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="recipe_selector" parent="CanvasLayer/Panel" instance=ExtResource("2_hd2yh")]
+layout_mode = 1
 
 [node name="build_overlay" parent="." instance=ExtResource("2_s4b4b")]
