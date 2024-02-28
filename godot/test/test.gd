@@ -8,6 +8,7 @@ extends Node2D
 @onready var fps_label = $CanvasLayer/fps_label
 @onready var build_overlay = $build_overlay
 
+var run_info = RunInfo.new()
 
 var sequence_horizontal = [false, true, false, true]
 var sequence_negative = [false, true, true, false]
@@ -58,15 +59,11 @@ func _ready():
 
 	line_manager.set_build_phase(true)
 	line_manager.set_paused(true)
-	line_manager.spawn_line(5,0,false,false);
-	line_manager.spawn_line(5,1,false,false);
-	line_manager.spawn_line(5,2,false,false);
-	line_manager.add_spawn_to_line(5,0,[0],0);
 
-	line_manager.spawn_line(5,20,false,false);
-	line_manager.spawn_line(5,21,false,false);
-	line_manager.spawn_line(5,22,false,false);
-	line_manager.add_recipe_and_storer_to_line(5,22, [0], [1], 3.);
+	var new_line = NewLineBonus.gen_line(run_info)
+	new_line.apply_to_run(run_info)
+
+	run_info.init(line_manager)
 
 	update_text()
 	line_manager.init(42)
@@ -112,6 +109,12 @@ func _input(event):
 				line_manager.clear_all()
 				line_manager.set_paused(true)
 				line_manager.set_build_phase(true)
+
+				var new_line = NewLineBonus.gen_line(run_info)
+				new_line.apply_to_run(run_info)
+
+				run_info.init(line_manager)
+				run_info.print_run()
 			else:
 				line_manager.set_paused(not line_manager.is_paused())
 				print("pause ", line_manager.is_paused())
