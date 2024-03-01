@@ -43,7 +43,7 @@ func _ready():
 	frames_library.addFrame("splitter_up_flipped", preload("res://godot/frames/belt/splitter_up_flipped_v2.tres"), Vector2(0,0), false)
 	frames_library.addFrame("splitter_up", preload("res://godot/frames/belt/splitter_up_v2.tres"), Vector2(0,0), false)
 
-	line_manager.set_max_timestamp(300)
+	line_manager.set_max_timestamp(30)
 
 	line_manager.setEntityDrawer(entity_drawer)
 	line_manager.setEntityDrawer2(entity_drawer_2)
@@ -53,6 +53,10 @@ func _ready():
 	line_manager.set_paused(true)
 
 	var new_line = NewLineBonus.gen_bonus(run_info)
+	new_line.apply_to_run(run_info)
+	new_line = NewLineBonus.gen_bonus(run_info)
+	new_line.apply_to_run(run_info)
+	new_line = NewLineBonus.gen_bonus(run_info)
 	new_line.apply_to_run(run_info)
 
 	run_info.init(line_manager)
@@ -67,14 +71,18 @@ func _ready():
 	phase_state.run_info = run_info
 	phase_state.set_phase(PhaseState.Phase.BUILDING)
 
+	$CanvasLayer/shop_panel.gen_shop_items(run_info)
+
 func _unhandled_input(event):
 	if event is InputEventKey and event.is_pressed():
 		line_manager.key_pressed(event.keycode)
 
+		# PAUSE
 		if event.keycode == KEY_SPACE \
 		and phase_state.current_phase == PhaseState.Phase.RUNNING:
 			line_manager.set_paused(not line_manager.is_paused())
 
+		# END BUILDING
 		if event.keycode == KEY_S:
 			if phase_state.current_phase == PhaseState.Phase.BUILDING:
 				phase_state.set_phase(PhaseState.Phase.RUNNING)

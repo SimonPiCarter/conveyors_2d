@@ -9,7 +9,7 @@ static func gen_template(run : RunInfo) -> RecipeTemplate:
 	var qty_total = randi_range(2,4)
 
 	var new_template = RecipeTemplate.new()
-	new_template.value = randi_range(9,14) + qty_total * qty_total
+	new_template.value = (randi_range(9,14) + qty_total) * qty_total
 
 	var types = []
 	for spawn in run.spawns:

@@ -10,3 +10,6 @@ func gen_name() -> String:
 		dict[types[i]] = quantities[i]
 
 	return JSON.stringify(dict)
+
+func gen_description() -> String:
+	return gen_name() + "\n\tvalue = " + String.num(value, 2)

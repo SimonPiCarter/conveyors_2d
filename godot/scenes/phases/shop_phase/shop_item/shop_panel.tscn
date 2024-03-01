@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://bx4jmkik73uqv"]
+
+[ext_resource type="Script" path="res://godot/scenes/phases/shop_phase/shop_item/shop_panel.gd" id="1_rvcb8"]
+[ext_resource type="PackedScene" uid="uid://dxyl5ofovxmt6" path="res://godot/scenes/phases/shop_phase/shop_item/shop_item.tscn" id="2_m5e84"]
+
+[node name="shop_panel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rvcb8")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="ScrollContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="shop_item" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
+
+[node name="shop_item2" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
+
+[node name="shop_item3" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
+
+[node name="shop_item4" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
+
+[node name="shop_item5" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
+
+[node name="shop_item6" parent="ScrollContainer/GridContainer" instance=ExtResource("2_m5e84")]
+layout_mode = 2
