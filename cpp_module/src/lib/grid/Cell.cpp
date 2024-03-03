@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "Line.h"
+#include "lib/line/Line.h"
 
 bool is_eq(double a, double b, double tol)
 {

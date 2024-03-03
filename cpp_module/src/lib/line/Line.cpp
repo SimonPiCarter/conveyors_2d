@@ -148,7 +148,7 @@ void neo_step(Line &line_p)
 		{
 			neo_add_to_start(*line_p.next_line, item_l.ent, move - line_p.dist_end);
 			remove_first_from_line(line_p);
-			move = remaining_movement;
+			// do not update remaining move!
 			last = line_p.items.size();
 			cur = line_p.first;
 			line_p.sent_to_next = true;

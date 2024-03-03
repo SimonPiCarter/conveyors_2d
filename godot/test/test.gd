@@ -43,7 +43,7 @@ func _ready():
 	frames_library.addFrame("splitter_up_flipped", preload("res://godot/frames/belt/splitter_up_flipped_v2.tres"), Vector2(0,0), false)
 	frames_library.addFrame("splitter_up", preload("res://godot/frames/belt/splitter_up_v2.tres"), Vector2(0,0), false)
 
-	line_manager.set_max_timestamp(30)
+	line_manager.set_max_timestamp(300)
 
 	line_manager.setEntityDrawer(entity_drawer)
 	line_manager.setEntityDrawer2(entity_drawer_2)

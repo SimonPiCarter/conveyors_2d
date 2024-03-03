@@ -3,16 +3,11 @@
 #include <vector>
 #include <functional>
 
+#include "Cell.h"
+
 #include "flecs.h"
-#include "lib/factories/Line.h"
 
-namespace godot
-{
-	class EntityDrawer;
-}
-
-struct Grid
-{
+struct Grid {
 	Grid(int32_t x_p, int32_t y_p);
 
 	void unset(int32_t x, int32_t y);
@@ -24,12 +19,20 @@ private:
 	std::vector<flecs::entity> _data;
 };
 
-void iterate_on_positions(flecs::entity ent, std::function<void(Position const &)> &&func_p);
+bool is_horizontal(CellLine const &line_p);
 
-void fill(Grid &grid_p, flecs::entity ent);
-bool check_line(Grid &grid_p, flecs::entity ent);
+bool same_direction(CellLine const & a, CellLine const & b);
 
-flecs::entity merge_around_to_pos(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent, Position const &pos_p);
-flecs::entity merge_on_from_pos(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent, Position const &pos_p);
+bool can_merge_lines(CellLine const & a, CellLine const & b);
 
-flecs::entity merge_around(godot::EntityDrawer * drawer_p, Grid & grid_p, flecs::world &ecs, flecs::entity ent);
+flecs::entity merge_lines(flecs::world &ecs, flecs::entity a, flecs::entity b);
+
+/// @brief merge all lines present in cells
+void merge_cells(flecs::world &ecs, Cell & a, Cell & b);
+
+void merge_adjacent_cells(flecs::world &ecs, Grid &grid_p, Cell &a);
+
+void merge_all_cells(flecs::world &ecs, Grid &grid_p);
+
+/// @brief link cells with only two lines
+void link_all_simple_cells(flecs::world &ecs);

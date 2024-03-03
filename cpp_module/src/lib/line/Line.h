@@ -8,7 +8,12 @@
 
 #include "flecs.h"
 
-struct Spawn {};
+
+struct Spawn {
+	std::vector<int32_t> types;
+	uint32_t spawn_cooldown = 0;
+	uint32_t last_spawn_timestamp = 0;
+};
 
 struct ItemOnLine {
 	flecs::entity_view ent;
@@ -16,6 +21,12 @@ struct ItemOnLine {
 	size_t next = 0;
 	int32_t dist_to_next = 0;
 };
+
+struct Object {
+	int32_t type;
+};
+struct Consumed {};
+
 
 struct Line {
 	Line() = default;

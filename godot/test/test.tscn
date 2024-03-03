@@ -30,6 +30,7 @@ grow_horizontal = 0
 horizontal_alignment = 2
 
 [node name="shop_panel" parent="CanvasLayer" instance=ExtResource("2_0lvce")]
+visible = false
 
 [node name="build_phase" parent="." instance=ExtResource("4_y74cj")]
 

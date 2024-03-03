@@ -1,38 +1,18 @@
 #include <iostream>
 
-#include "Line.h"
-#include "grid/Grid.h"
+#include "lib/line/Line.h"
+#include "lib/line/systems/LineSystems.h"
+#include "lib/grid/Grid.h"
+#include "lib/pipeline/PipelineSteps.h"
 
 int main()
 {
 	flecs::world ecs;
 
-	ecs.system<const OutputLine, Line>()
-		.each([](OutputLine const &ol, Line &line_p) {
-			line_p.next_line = ol.lines[ol.current].get_mut<Line>();
-		});
+	uint32_t timestamp_l = 0;
+	std::mt19937 rand_l(42);
 
-
-	ecs.system<const Magnitude, Line const>()
-		.order_by<Magnitude>([](flecs::entity_t e1, const Magnitude *d1, flecs::entity_t e2, const Magnitude *d2) {
-			return (d1->order < d2->order) - (d1->order > d2->order);
-		})
-		.each([](flecs::entity ent, const Magnitude &m, Line const &line_p) {
-			std::cout<< ent.name() <<" order = " << m.order << std::endl;
-
-			for_each_item(line_p, [](ItemOnLine const &item, int32_t pos) {
-				std::cout<<item.ent.name()<<" pos : "<<pos<<std::endl;
-			});
-		});
-
-	// Use readonly term for component used for sorting
-	ecs.system<const Magnitude, Line>()
-		.order_by<Magnitude>([](flecs::entity_t e1, const Magnitude *d1, flecs::entity_t e2, const Magnitude *d2) {
-			return (d1->order < d2->order) - (d1->order > d2->order);
-		})
-		.each([](flecs::entity ent, const Magnitude &m, Line &line_p) {
-			neo_step(line_p);
-		});
+	set_up_line_systems(ecs, timestamp_l, timestamp_l, rand_l, true);
 
 	Grid grid_l(256, 256);
 
@@ -60,10 +40,10 @@ int main()
 	create_all_lines(ecs);
 	link_all_simple_cells(ecs);
 
-	flecs::entity obj1 = ecs.entity("obj1");
 	flecs::entity cell = grid_l.get(14, 8);
 	Cell const * cell_component = cell.get<Cell>();
-	neo_add_to_start(*cell_component->lines[0].get_mut<Line>(), obj1, 0);
+	flecs::entity cell_line = cell_component->lines[0];
+	cell_line.set<Spawn>({{0}, 0, 0});
 
 	ecs.filter<CellLine const>()
 		.each([&](CellLine const &line_p) {
@@ -72,10 +52,18 @@ int main()
 
 	tag_all_magnitude(ecs);
 
+	// Create custom pipeline
+	flecs::entity iteration_pipeline = ecs.pipeline()
+		.with(flecs::System)
+		.with<Iteration>()
+		.build();
+	ecs.set_pipeline(iteration_pipeline);
+
 	std::cerr<<"progress"<<std::endl;
 	ecs.progress();
 	for(size_t i = 1 ; i < 20 ; ++ i)
 	{
+		++timestamp_l;
 		std::cout<<"i = "<<i<<std::endl;
 		ecs.progress();
 	}

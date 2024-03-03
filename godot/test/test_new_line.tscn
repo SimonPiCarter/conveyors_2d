@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://e8p3lavr5uh4"]
+
+[ext_resource type="Script" path="res://godot/test/test_new_line.gd" id="1_xygxi"]
+
+[node name="test_new_line" type="Node2D"]
+script = ExtResource("1_xygxi")
+
+[node name="EntityDrawer" type="EntityDrawer" parent="."]
+
+[node name="EntityDrawer2" type="EntityDrawer" parent="."]
+
+[node name="FramesLibrary" type="FramesLibrary" parent="."]
+
+[node name="LineManager" type="LineManager" parent="."]

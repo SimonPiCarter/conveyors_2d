@@ -11,11 +11,8 @@
 #include "entity_drawer/EntityDrawer.h"
 #include "entity_drawer/FramesLibrary.h"
 
-#include "lib/factories/Connector.h"
-#include "lib/factories/Line.h"
-#include "lib/factories/Drawable.h"
+#include "lib/line/Line.h"
 #include "lib/grid/Grid.h"
-#include "lib/level/Level.h"
 
 namespace godot {
 
@@ -69,10 +66,6 @@ public:
 	double get_score();
 
 private:
-	void remove_line_internal(int x, int y);
-	void spawn_line_internal(int x, int y, bool honrizontal_p, bool negative_p);
-	void spawn_splitter_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
-	void spawn_merger_internal(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
 	std::thread * _thread = nullptr;
 
 	bool _init = false;
@@ -87,28 +80,16 @@ private:
 
 	std::mt19937 *_gen = nullptr;
 
+	// pipelines
+	flecs::entity display_pipeline;
+	flecs::entity iteration_pipeline;
+
 	flecs::world ecs;
-	flecs::query<Line const, flecs::pair<From, Position>, flecs::pair<To, Position>> update_display;
-	flecs::query<DrawingInit const> init_display;
-	flecs::query<Drawing const, Consumed const> consumed_objects;
 	Grid grid = {512, 512};
 
 	EntityDrawer * _drawer = nullptr;
 	EntityDrawer * _drawer2 = nullptr;
 	FramesLibrary * _framesLibrary = nullptr;
-
-	// level info
-	Level level;
-
-	// spawned queues
-	std::list<SpawnLine> _line_spawn_queue;
-	std::list<RemoveLine> _line_remove_queue;
-	std::list<SpawnSplitter> _splitter_spawn_queue;
-	std::list<SpawnMerger> _merger_spawn_queue;
-
-	// spawned line systems
-	flecs::system new_line_system;
-	flecs::system merge_line_system;
 };
 
 }
