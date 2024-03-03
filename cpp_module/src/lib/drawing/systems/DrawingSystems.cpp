@@ -68,7 +68,7 @@ void set_up_display_systems(flecs::world &ecs, godot::LineManager *manager_p) {
 						manager_p->getEntityDrawer()->set_new_pos(drawable_l->idx, Vector2(x, y));
 					}
 				}
-				dist += item_l.dist_to_next+100;
+				dist += item_l.dist_to_next;
 				idx = item_l.next;
 			}
 		});

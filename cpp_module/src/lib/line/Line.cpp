@@ -2,6 +2,15 @@
 
 #include <iostream>
 
+Line::Line(uint32_t distance_p) : first(size_t(distance_p/100 + 1)), dist_start(distance_p), dist_end(distance_p), full_dist(distance_p)
+{
+	items.resize(distance_p/100 + 1);
+	for(size_t i = 0 ; i < items.size(); ++i)
+	{
+		free_idx.push_back(i);
+	}
+}
+
 bool is_empty(Line const &line_p)
 {
 	return line_p.first >= line_p.items.size();

@@ -1,5 +1,6 @@
 #include "LineSystems.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <iostream>
 
 #include "lib/pipeline/PipelineSteps.h"
@@ -12,8 +13,7 @@ void set_up_line_systems(flecs::world &ecs, uint32_t const &timestamp_p, float c
 		.each([&](flecs::entity const &ent, Line &line_p, CellLine const &cell_line_p, Spawn &spawn_p) {
 			if(can_add(line_p)
 			&& (timestamp_p >= spawn_p.spawn_cooldown + spawn_p.last_spawn_timestamp || spawn_p.last_spawn_timestamp == 0)
-			&& !spawn_p.types.empty()
-			&& timestamp_p <= 3)
+			&& !spawn_p.types.empty())
 			{
 				LinePosition pos_l = cell_line_p.start;
 				spawn_p.last_spawn_timestamp = timestamp_p + 1;

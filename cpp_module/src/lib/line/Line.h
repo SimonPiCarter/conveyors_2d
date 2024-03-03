@@ -30,14 +30,7 @@ struct Consumed {};
 
 struct Line {
 	Line() = default;
-	Line(uint32_t distance_p) : first(size_t(distance_p/100)), dist_start(distance_p), dist_end(distance_p), full_dist(distance_p)
-	{
-		items.resize(distance_p/100);
-		for(size_t i = 0 ; i < items.size(); ++i)
-		{
-			free_idx.push_back(i);
-		}
-	}
+	Line(uint32_t distance_p);
 
 	std::vector<ItemOnLine> items;
 	/// @brief list of free idx in the vector
