@@ -100,6 +100,7 @@ flecs::entity_view remove_first_from_line(Line &line_p)
 
 void neo_step(Line &line_p)
 {
+	line_p.sent_to_next = false;
 	if(is_empty(line_p))
 	{
 		return;
@@ -150,6 +151,7 @@ void neo_step(Line &line_p)
 			move = remaining_movement;
 			last = line_p.items.size();
 			cur = line_p.first;
+			line_p.sent_to_next = true;
 		}
 	}
 

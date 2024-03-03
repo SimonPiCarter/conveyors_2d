@@ -47,6 +47,10 @@ struct Line {
 	// globals
 	uint32_t full_dist = 0;
 	uint32_t speed = 50;
+
+	// true when the last step call has sent an
+	// item to the next line
+	bool sent_to_next = false;
 };
 
 bool is_empty(Line const &line_p);
