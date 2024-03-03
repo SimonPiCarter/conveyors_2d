@@ -8,5 +8,6 @@ add_executable(main
 )
 
 target_link_libraries(main PRIVATE flecs::flecs_static)
+target_include_directories(main PRIVATE src/)
 
 install (TARGETS main EXPORT ${PROJECT_NAME}-export)

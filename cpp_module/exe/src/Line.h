@@ -19,10 +19,10 @@ struct ItemOnLine {
 
 struct Line {
 	Line() = default;
-	Line(uint32_t capacity_p) : first(size_t(capacity_p)), dist_start(capacity_p*100), dist_end(capacity_p*100), full_dist(capacity_p*100)
+	Line(uint32_t distance_p) : first(size_t(distance_p/100)), dist_start(distance_p), dist_end(distance_p), full_dist(distance_p)
 	{
-		items.resize(capacity_p);
-		for(size_t i = 0 ; i < capacity_p; ++i)
+		items.resize(distance_p/100);
+		for(size_t i = 0 ; i < items.size(); ++i)
 		{
 			free_idx.push_back(i);
 		}

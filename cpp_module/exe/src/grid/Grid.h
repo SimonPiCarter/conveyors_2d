@@ -33,3 +33,6 @@ void merge_cells(flecs::world &ecs, Cell & a, Cell & b);
 void merge_adjacent_cells(flecs::world &ecs, Grid &grid_p, Cell &a);
 
 void merge_all_cells(flecs::world &ecs, Grid &grid_p);
+
+/// @brief link cells with only two lines
+void link_all_simple_cells(flecs::world &ecs);

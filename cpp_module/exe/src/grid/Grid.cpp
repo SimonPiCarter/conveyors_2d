@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "Line.h"
+
 Grid::Grid(int32_t x_p, int32_t y_p)
 	: size_x(x_p), size_y(y_p), _data(x_p*y_p, flecs::entity())
 {}
@@ -143,4 +145,32 @@ void merge_all_cells(flecs::world &ecs, Grid &grid_p)
 		.each([&](flecs::entity e, Cell &cell){
 			merge_adjacent_cells(ecs, grid_p, cell);
 		});
+}
+
+void link_all_simple_cells(flecs::world &ecs)
+{
+	ecs.defer([&]{
+		ecs.filter<Cell>()
+		.each([&](flecs::entity e, Cell &cell){
+			if(cell.lines.size() == 2
+			&& cell.lines[0] && cell.lines[0].get<CellLine>()
+			&& cell.lines[1] && cell.lines[1].get<CellLine>())
+			{
+				flecs::entity line0 = cell.lines[0];
+				flecs::entity line1 = cell.lines[1];
+
+				CellLine const &pos0_l = *cell.lines[0].get<CellLine>();
+				CellLine const &pos1_l = *cell.lines[1].get<CellLine>();
+
+				if(pos0_l.end == pos1_l.start)
+				{
+					connect(line0, line1);
+				}
+				if(pos1_l.end == pos0_l.start)
+				{
+					connect(line1, line0);
+				}
+			}
+		});
+	});
 }

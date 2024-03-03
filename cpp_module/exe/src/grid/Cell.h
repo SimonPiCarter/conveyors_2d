@@ -33,6 +33,14 @@ struct Cell {
 };
 
 flecs::entity create_up(flecs::world &ecs, uint32_t x, uint32_t y);
+flecs::entity create_down(flecs::world &ecs, uint32_t x, uint32_t y);
 flecs::entity create_left(flecs::world &ecs, uint32_t x, uint32_t y);
-flecs::entity create_up_left(flecs::world &ecs, uint32_t x, uint32_t y);
-flecs::entity create_left_up(flecs::world &ecs, uint32_t x, uint32_t y);
+flecs::entity create_right(flecs::world &ecs, uint32_t x, uint32_t y);
+flecs::entity create_empty(flecs::world &ecs, uint32_t x, uint32_t y);
+
+flecs::entity create_cell_half_line_up(flecs::world &ecs, flecs::entity ent_cell, bool input);
+flecs::entity create_cell_half_line_down(flecs::world &ecs, flecs::entity ent_cell, bool input);
+flecs::entity create_cell_half_line_left(flecs::world &ecs, flecs::entity ent_cell, bool input);
+flecs::entity create_cell_half_line_right(flecs::world &ecs, flecs::entity ent_cell, bool input);
+
+void create_all_lines(flecs::world &ecs);
