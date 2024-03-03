@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Line.h"
+#include "grid/Grid.h"
 
 int main()
 {
@@ -61,22 +62,23 @@ int main()
 	ecs.progress();
 	std::cout<<std::endl;
 	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
-	std::cout<<std::endl;
-	ecs.progress();
+
+	Grid grid_l(256, 256);
+
+	grid_l.set(10, 8, create_up(ecs, 10, 8));
+	grid_l.set(10, 10, create_up(ecs, 10, 10));
+	grid_l.set(10, 9, create_up(ecs, 10, 9));
+	grid_l.set(13, 11, create_left(ecs, 13, 11));
+	grid_l.set(11, 11, create_left(ecs, 11, 11));
+	grid_l.set(10, 11, create_left_up(ecs, 10, 11));
+	grid_l.set(12, 11, create_left(ecs, 12, 11));
+
+	merge_all_cells(ecs, grid_l);
+
+	ecs.filter<CellLine const>()
+		.each([&](CellLine const &line_p) {
+			std::cout<<line_p<<std::endl;
+		});
 
 	return 0;
 }

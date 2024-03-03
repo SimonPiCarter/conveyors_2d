@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
 
-add_executable(main src/main.cpp src/Line.cpp)
+add_executable(main
+	src/main.cpp
+	src/Line.cpp
+	src/grid/Cell.cpp
+	src/grid/Grid.cpp
+)
 
 target_link_libraries(main PRIVATE flecs::flecs_static)
 
