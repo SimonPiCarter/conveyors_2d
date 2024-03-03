@@ -20,38 +20,50 @@ void step(Line &line_p)
 	}
 
 	int32_t remaining_movement = 0;
+	// If not enough room to perform the full speed step
 	if (line_p.dist_end < line_p.speed)
 	{
+		// remaining movement after going to the end of the line is computed
 		remaining_movement = line_p.speed - line_p.dist_end;
+		// item will be at end of line
 		line_p.dist_end = 0;
 	}
 	else
 	{
+		// else we just reduce the distance to the end of the line
 		line_p.dist_end -= line_p.speed;
 	}
 
-	size_t last = line_p.first;
 	size_t idx = line_p.first;
+	// while we have remaining movement to be handled
 	while(remaining_movement > 0 && idx < line_p.items.size())
 	{
+		// get the current item on the line
 		ItemOnLine &item_l = line_p.items[idx];
+		// if the next item can NOT completely move the full remaining movement
 		if(remaining_movement > item_l.dist_to_next)
 		{
+			// reduce remaining movement by the distance between current and next items
+			// compacting them
 			remaining_movement = remaining_movement - item_l.dist_to_next;
 			item_l.dist_to_next = 0;
 		}
 		else
 		{
+			// next item can move the complete remaining movement
 			item_l.dist_to_next -= remaining_movement;
+			// we are done
 			remaining_movement = 0;
 		}
-		last = idx;
+		// update to next item
 		idx = item_l.next;
 	}
 
 	unsigned long performed_movement = line_p.speed - remaining_movement;
+	// update the distance to start based on the total movement of the last item entered in the line
 	line_p.dist_start += performed_movement;
 }
+
 void empty_line(Line &line_p)
 {
 	line_p.free_idx.clear();
