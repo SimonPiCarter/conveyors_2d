@@ -49,7 +49,7 @@ bool neo_add_to_start(Line &line_p, flecs::entity_view const &item_p, uint32_t m
 		uint32_t capped_move = std::min(line_p.dist_start - 100, movement_p);
 		// update chaining
 		line_p.items[line_p.last].next = idx_l;
-		line_p.items[line_p.last].dist_to_next = line_p.dist_start - movement_p;
+		line_p.items[line_p.last].dist_to_next = line_p.dist_start - capped_move;
 	}
 	line_p.last = idx_l;
 
@@ -82,7 +82,7 @@ int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p)
 	else
 	{
 		ItemOnLine const &item = line_p.items[last_p];
-		return item.dist_to_next - 100;
+		return std::max<int32_t>(0, item.dist_to_next - 100);
 	}
 	return 0;
 }
@@ -124,11 +124,9 @@ void neo_step(Line &line_p)
 	while(move > 0 && cur < line_p.items.size())
 	{
 		int32_t max_movement = get_max_movement(line_p, last, cur);
-		if(max_movement < move)
-		{
-			remaining_movement = move - max_movement;
-			move = max_movement;
-		}
+
+		remaining_movement = std::max(0, move - max_movement);
+		move = std::min(move, max_movement);
 		// get the current item on the line
 		ItemOnLine &item_l = line_p.items[cur];
 		// if there is an element before this item
@@ -136,7 +134,7 @@ void neo_step(Line &line_p)
 		// max movement
 		if(last < line_p.items.size())
 		{
-			item_l.dist_to_next -= move;
+			line_p.items[last].dist_to_next -= move;
 			move = remaining_movement;
 			last = cur;
 			cur = item_l.next;

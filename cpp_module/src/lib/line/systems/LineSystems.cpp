@@ -43,7 +43,7 @@ void set_up_line_systems(flecs::world &ecs, uint32_t const &timestamp_p, float c
 				flecs::entity object = ecs.entity()
 					.set<Object>({type})
 					.set<DrawingInit>(drawing_l);
-				neo_add_to_start(line_p, object, 0);
+				neo_add_to_start(line_p, object, line_p.speed);
 			}
 		});
 

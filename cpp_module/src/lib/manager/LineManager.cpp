@@ -149,6 +149,8 @@ void LineManager::_process(double delta)
 		{
 			_thread->join();
 
+			getEntityDrawer()->update_pos();
+			getEntityDrawer2()->update_pos();
 			ecs.set_pipeline(display_pipeline);
 			ecs.progress();
 		}

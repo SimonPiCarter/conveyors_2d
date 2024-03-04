@@ -30,12 +30,6 @@ void set_up_display_systems(flecs::world &ecs, godot::LineManager *manager_p) {
 			ent.remove<DrawingInit>();
 		});
 
-	ecs.system("update_pos")
-		.kind<Display>()
-		.iter([manager_p](flecs::iter& it) {
-			manager_p->getEntityDrawer()->update_pos();
-			manager_p->getEntityDrawer2()->update_pos();
-		});
 
 	ecs.system<Drawing const>()
 		.kind<Display>()
