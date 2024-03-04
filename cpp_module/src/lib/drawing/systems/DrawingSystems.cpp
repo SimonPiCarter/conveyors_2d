@@ -13,7 +13,7 @@ using namespace godot;
 void set_up_display_systems(flecs::world &ecs, godot::LineManager *manager_p) {
 
 	ecs.system<DrawingInit const>()
-		.kind<Display>()
+		.kind<DisplayInit>()
 		.each([manager_p](flecs::entity &ent, DrawingInit const &init_p) {
 			Drawing drawing_l;
 			init_p.x;

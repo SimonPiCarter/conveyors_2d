@@ -82,6 +82,7 @@ private:
 
 	// pipelines
 	flecs::entity display_pipeline;
+	flecs::entity display_init_pipeline;
 	flecs::entity iteration_pipeline;
 
 	flecs::world ecs;

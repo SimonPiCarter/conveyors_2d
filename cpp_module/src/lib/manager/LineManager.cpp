@@ -197,6 +197,11 @@ void LineManager::init(int seed_p)
 		.with<Display>()
 		.build();
 
+	display_init_pipeline = ecs.pipeline()
+		.with(flecs::System)
+		.with<DisplayInit>()
+		.build();
+
 	if(_drawer)
 	{
 		_drawer->set_time_step(time_step);
@@ -241,6 +246,9 @@ void LineManager::_process(double delta)
 		if(_thread)
 		{
 			_thread->join();
+
+			ecs.set_pipeline(display_init_pipeline);
+			ecs.progress();
 
 			getEntityDrawer()->update_pos();
 			getEntityDrawer2()->update_pos();
