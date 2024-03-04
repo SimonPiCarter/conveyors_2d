@@ -19,6 +19,8 @@ int main()
 	grid_l.set(10, 8, create_up(ecs, 10, 8));
 	grid_l.set(10, 10, create_up(ecs, 10, 10));
 	grid_l.set(10, 9, create_up(ecs, 10, 9));
+	grid_l.set(10, 7, create_up(ecs, 10, 7));
+	grid_l.set(10, 6, create_up(ecs, 10, 6));
 
 	grid_l.set(13, 11, create_left(ecs, 13, 11));
 	grid_l.set(11, 11, create_left(ecs, 11, 11));
@@ -60,8 +62,7 @@ int main()
 	ecs.set_pipeline(iteration_pipeline);
 
 	std::cerr<<"progress"<<std::endl;
-	ecs.progress();
-	for(size_t i = 1 ; i < 20 ; ++ i)
+	for(size_t i = 0 ; i < 20 ; ++ i)
 	{
 		++timestamp_l;
 		std::cout<<"i = "<<i<<std::endl;
