@@ -4,6 +4,8 @@
 #include <sstream>
 
 #include "lib/line/Line.h"
+#include "lib/line/Merger.h"
+#include "lib/line/Splitter.h"
 
 Grid::Grid(int32_t x_p, int32_t y_p)
 	: size_x(x_p), size_y(y_p), _data(x_p*y_p, flecs::entity())
@@ -46,13 +48,19 @@ bool same_direction(CellLine const & a, CellLine const & b)
 	return is_horizontal(a) == is_horizontal(b);
 }
 
+bool is_middle_point(LinePosition const &point)
+{
+	return (std::ceil(point.x) - point.x) + (std::ceil(point.y) - point.y) > 0.95;
+}
+
 bool can_merge_lines(CellLine const & a, CellLine const & b)
 {
 	if(!same_direction(a,b))
 	{
 		return false;
 	}
-	return a.start == b.end || b.start == a.end;
+	return (!is_middle_point(a.start) && a.start == b.end)
+		|| (!is_middle_point(b.start) && b.start == a.end);
 }
 
 flecs::entity merge_lines(flecs::world &ecs, flecs::entity a, flecs::entity b)
@@ -169,6 +177,80 @@ void link_all_simple_cells(flecs::world &ecs)
 				if(pos1_l.end == pos0_l.start)
 				{
 					connect(line1, line0);
+				}
+			}
+		});
+	});
+}
+
+void link_all_splitter_cells(flecs::world &ecs)
+{
+	ecs.defer([&]{
+		ecs.filter<Cell>()
+		.each([&](flecs::entity e, Cell &cell){
+			if(cell.lines.size() == 3
+			&& cell.lines[0] && cell.lines[0].get<CellLine>()
+			&& cell.lines[1] && cell.lines[1].get<CellLine>()
+			&& cell.lines[2] && cell.lines[2].get<CellLine>())
+			{
+				flecs::entity line0 = cell.lines[0];
+				flecs::entity line1 = cell.lines[1];
+				flecs::entity line2 = cell.lines[2];
+
+				CellLine const &pos0_l = *cell.lines[0].get<CellLine>();
+				CellLine const &pos1_l = *cell.lines[1].get<CellLine>();
+				CellLine const &pos2_l = *cell.lines[2].get<CellLine>();
+				if(pos0_l.end == pos1_l.start
+				&& pos0_l.end == pos2_l.start)
+				{
+					e.set<Splitter>({line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}});
+				}
+				else if(pos1_l.end == pos0_l.start
+					 && pos1_l.end == pos2_l.start)
+				{
+					e.set<Splitter>({line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}});
+				}
+				else if(pos2_l.end == pos0_l.start
+					 && pos2_l.end == pos1_l.start)
+				{
+					e.set<Splitter>({line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}});
+				}
+			}
+		});
+	});
+}
+
+void link_all_merger_cells(flecs::world &ecs)
+{
+	ecs.defer([&]{
+		ecs.filter<Cell>()
+		.each([&](flecs::entity e, Cell &cell){
+			if(cell.lines.size() == 3
+			&& cell.lines[0] && cell.lines[0].get<CellLine>()
+			&& cell.lines[1] && cell.lines[1].get<CellLine>()
+			&& cell.lines[2] && cell.lines[2].get<CellLine>())
+			{
+				flecs::entity line0 = cell.lines[0];
+				flecs::entity line1 = cell.lines[1];
+				flecs::entity line2 = cell.lines[2];
+
+				CellLine const &pos0_l = *cell.lines[0].get<CellLine>();
+				CellLine const &pos1_l = *cell.lines[1].get<CellLine>();
+				CellLine const &pos2_l = *cell.lines[2].get<CellLine>();
+				if(pos0_l.start == pos1_l.end
+				&& pos0_l.start == pos2_l.end)
+				{
+					e.set<Merger>({line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}});
+				}
+				else if(pos1_l.start == pos0_l.end
+					 && pos1_l.start == pos2_l.end)
+				{
+					e.set<Merger>({line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}});
+				}
+				else if(pos2_l.start == pos0_l.end
+					 && pos2_l.start == pos1_l.end)
+				{
+					e.set<Merger>({line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}});
 				}
 			}
 		});

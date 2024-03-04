@@ -72,7 +72,11 @@ int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p)
 		{
 			return line_p.dist_end;
 		}
-		int32_t max_movement = line_p.next_line->dist_start + line_p.dist_end;
+		int32_t max_movement = line_p.dist_end;
+		if(line_p.next_line->full_dist >= 100)
+		{
+			max_movement += line_p.next_line->dist_start;
+		}
 		if(!is_empty(*line_p.next_line))
 		{
 			max_movement = std::max(0, max_movement - 100);

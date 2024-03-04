@@ -8,6 +8,8 @@
 
 #include "lib/pipeline/PipelineSteps.h"
 #include "lib/line/systems/LineSystems.h"
+#include "lib/line/Splitter.h"
+#include "lib/line/Merger.h"
 #include "lib/drawing/systems/DrawingSystems.h"
 
 namespace godot {
@@ -56,9 +58,13 @@ void LineManager::init(int seed_p)
 
 	//// >LEVEL INSTANCE
 
+	grid.set(10, 7, create_up(ecs, 10, 7));
 	grid.set(10, 8, create_up(ecs, 10, 8));
 	grid.set(10, 10, create_up(ecs, 10, 10));
 	grid.set(10, 9, create_up(ecs, 10, 9));
+	grid.set(10, 6, create_up(ecs, 10, 6));
+	grid.set(10, 5, create_up(ecs, 10, 5));
+	grid.set(10, 4, create_up(ecs, 10, 4));
 
 	grid.set(13, 11, create_left(ecs, 13, 11));
 	grid.set(11, 11, create_left(ecs, 11, 11));
@@ -68,27 +74,114 @@ void LineManager::init(int seed_p)
 	grid.set(14, 9, create_down(ecs, 14, 9));
 	grid.set(14, 8, create_down(ecs, 14, 8));
 
+	grid.set(11, 3, create_right(ecs, 11, 3));
+	grid.set(12, 3, create_right(ecs, 12, 3));
+	grid.set(13, 3, create_right(ecs, 13, 3));
+	grid.set(14, 3, create_right(ecs, 14, 3));
+	grid.set(15, 3, create_right(ecs, 15, 3));
+	grid.set(16, 3, create_right(ecs, 16, 3));
+	grid.set(17, 3, create_right(ecs, 17, 3));
+
+	grid.set(18, 4, create_down(ecs, 18, 4));
+	grid.set(18, 5, create_down(ecs, 18, 5));
+	grid.set(18, 6, create_down(ecs, 18, 6));
+	grid.set(18, 7, create_down(ecs, 18, 7));
+	grid.set(18, 8, create_down(ecs, 18, 8));
+	grid.set(18, 9, create_down(ecs, 18, 9));
+	grid.set(18, 10, create_down(ecs, 18, 10));
+	grid.set(18, 11, create_down(ecs, 18, 11));
+	grid.set(18, 12, create_down(ecs, 18, 12));
+	grid.set(18, 13, create_down(ecs, 18, 13));
+	grid.set(18, 14, create_down(ecs, 18, 14));
+	grid.set(18, 15, create_down(ecs, 18, 15));
+	grid.set(18, 16, create_down(ecs, 18, 16));
+	grid.set(18, 17, create_down(ecs, 18, 17));
+
+	grid.set(14, 12, create_down(ecs, 14, 12));
+	grid.set(14, 13, create_down(ecs, 14, 13));
+	grid.set(14, 14, create_down(ecs, 14, 14));
+	grid.set(14, 15, create_down(ecs, 14, 15));
+
+	grid.set(20, 12, create_down(ecs, 20, 12));
+	grid.set(20, 13, create_down(ecs, 20, 13));
+	grid.set(20, 14, create_down(ecs, 20, 14));
+	grid.set(20, 15, create_down(ecs, 20, 15));
+
+	grid.set(24, 16, create_left(ecs, 24, 16));
+	grid.set(23, 16, create_left(ecs, 23, 16));
+	grid.set(22, 16, create_left(ecs, 22, 16));
+	grid.set(21, 16, create_left(ecs, 21, 16));
+
+	// 20,17 -> 20,29
+	for(int i = 17 ; i < 30 ; ++ i)
+		grid.set(20, i, create_down(ecs, 20, i));
+
+	// 21,30 -> 104,30
+	for(int i = 21 ; i < 105 ; ++ i)
+		grid.set(i, 30, create_right(ecs, i, 30));
+
+	// 30,2 -> 30,25
+	for(int i = 2 ; i < 26 ; ++ i)
+		grid.set(30, i, create_down(ecs, 30, i));
+
 	flecs::entity ent = create_empty(ecs, 10, 11);
 	create_cell_half_line_right(ecs, ent, true);
 	create_cell_half_line_up(ecs, ent, false);
 
 	ent = create_empty(ecs, 14, 11);
 	create_cell_half_line_left(ecs, ent, false);
+	create_cell_half_line_down(ecs, ent, false);
+	create_cell_half_line_up(ecs, ent, true);
+
+	ent = create_empty(ecs, 10, 3);
+	create_cell_half_line_right(ecs, ent, false);
+	create_cell_half_line_down(ecs, ent, true);
+
+	ent = create_empty(ecs, 18, 3);
+	create_cell_half_line_left(ecs, ent, true);
+	create_cell_half_line_down(ecs, ent, false);
+
+	ent = create_empty(ecs, 20, 16);
+	create_cell_half_line_right(ecs, ent, true);
+	create_cell_half_line_down(ecs, ent, false);
+	create_cell_half_line_up(ecs, ent, true);
+
+	ent = create_empty(ecs, 20, 30);
+	create_cell_half_line_right(ecs, ent, false);
 	create_cell_half_line_up(ecs, ent, true);
 
 	merge_all_cells(ecs, grid);
 	create_all_lines(ecs);
 	link_all_simple_cells(ecs);
+	link_all_splitter_cells(ecs);
+	link_all_merger_cells(ecs);
 
 	flecs::entity cell = grid.get(14, 8);
 	Cell const * cell_component = cell.get<Cell>();
 	flecs::entity cell_line = cell_component->lines[0];
 	cell_line.set<Spawn>({{0}, 0, 0});
 
+	cell = grid.get(20, 12);
+	cell_component = cell.get<Cell>();
+	cell_line = cell_component->lines[0];
+	cell_line.set<Spawn>({{1}, 4, 0});
+
+	cell = grid.get(24, 16);
+	cell_component = cell.get<Cell>();
+	cell_line = cell_component->lines[0];
+	cell_line.set<Spawn>({{2}, 4, 0});
+
+	cell = grid.get(30, 2);
+	cell_component = cell.get<Cell>();
+	cell_line = cell_component->lines[0];
+	cell_line.set<Spawn>({{3}, 4, 0});
+
 	tag_all_magnitude(ecs);
 
 	// systems
 
+	add_splitter_system(ecs);
+	add_merger_system(ecs);
 	set_up_line_systems(ecs, _timestamp, world_size, *_gen, false);
 	set_up_display_systems(ecs, this);
 
@@ -151,6 +244,7 @@ void LineManager::_process(double delta)
 
 			getEntityDrawer()->update_pos();
 			getEntityDrawer2()->update_pos();
+
 			ecs.set_pipeline(display_pipeline);
 			ecs.progress();
 		}

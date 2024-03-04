@@ -36,3 +36,9 @@ void merge_all_cells(flecs::world &ecs, Grid &grid_p);
 
 /// @brief link cells with only two lines
 void link_all_simple_cells(flecs::world &ecs);
+
+/// @brief link cells as splitter (two out/one in)
+void link_all_splitter_cells(flecs::world &ecs);
+
+/// @brief link cells as merger (two in/one out)
+void link_all_merger_cells(flecs::world &ecs);
