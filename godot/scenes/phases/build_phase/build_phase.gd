@@ -1,5 +1,6 @@
 class_name PhaseStage extends Node2D
 
+@onready var canvas_layer = $CanvasLayer
 @onready var label = $CanvasLayer/Label
 @onready var build_overlay = $build_overlay
 @onready var recipe_selector = $CanvasLayer/Panel/recipe_selector
@@ -17,6 +18,9 @@ var flipped = false
 
 var mode : BuildMode.Mode = BuildMode.Mode.LINE
 
+func _ready():
+	visibility_changed.connect(update_canvas_visibility)
+
 func update_text():
 	var type_str = "Line"
 	if mode == BuildMode.Mode.MERGER:
@@ -31,6 +35,10 @@ func update_text():
 		("flipped" if flipped else "non-flipped") + "\n" + \
 		type_str
 	build_overlay.update_overlay(mode, horizontal, negative, flipped)
+
+
+func update_canvas_visibility():
+	canvas_layer.visible = visible
 
 func handle_clic(x, y):
 	var frame = BeltFrameHelper.getBeltFrame(mode, horizontal, negative, flipped)

@@ -9,6 +9,8 @@ extends Node2D
 
 # phases
 @onready var build_phase = $build_phase
+@onready var score_phase = $CanvasLayer/score_phase
+@onready var shop_phase = $CanvasLayer/shop_phase
 
 var run_info = RunInfo.new()
 
@@ -21,7 +23,7 @@ func _ready():
 	frames_library.addFrame("pink", preload("res://godot/frames/jams/pink.tres"), Vector2(-10,-10), false)
 	frames_library.addFrame("red", preload("res://godot/frames/jams/red.tres"), Vector2(-10,-10), false)
 	frames_library.addFrame("yellow", preload("res://godot/frames/jams/yellow.tres"), Vector2(-10,-10), false)
-	line_manager.set_max_timestamp(300)
+	line_manager.set_max_timestamp(100)
 
 	line_manager.setEntityDrawer(entity_drawer)
 	line_manager.setEntityDrawer2(entity_drawer_2)
@@ -45,11 +47,15 @@ func _ready():
 	build_phase.run_info = run_info
 	build_phase.update_text()
 
+	score_phase.end_score_stage.connect(phase_state.set_phase.bind(PhaseState.Phase.SHOP))
+
+	shop_phase.run_info = run_info
+	shop_phase.end_shop_stage.connect(phase_state.set_phase.bind(PhaseState.Phase.BUILDING))
+
 	phase_state.line_manager = line_manager
 	phase_state.run_info = run_info
+	phase_state.run_info = run_info
 	phase_state.set_phase(PhaseState.Phase.BUILDING)
-
-	$CanvasLayer/shop_panel.gen_shop_items(run_info)
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.is_pressed():
@@ -73,10 +79,6 @@ func _process(_delta):
 		"\nstate : "+PhaseState.get_phase_name(phase_state.current_phase)
 
 	if phase_state.current_phase == PhaseState.Phase.RUNNING and line_manager.is_over():
-		# TMP
-		var new_line = NewLineBonus.gen_bonus(run_info)
-		new_line.apply_to_run(run_info)
-
 		var imp_recipe = ImproveRecipeBonus.gen_bonus(run_info)
 		imp_recipe.apply_to_run(run_info)
 
@@ -84,5 +86,5 @@ func _process(_delta):
 		# TMP END
 
 		# TODO set to SCORE
-		phase_state.set_phase(PhaseState.Phase.BUILDING)
+		phase_state.set_phase(PhaseState.Phase.SCORE)
 

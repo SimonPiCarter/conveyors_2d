@@ -11,10 +11,13 @@ extends Control
 	$ScrollContainer/GridContainer/shop_item6
 ]
 
-var items = []
+signal selected_item(bonus)
+
+func _ready():
+	for item in shop_items:
+		item.selected.connect(item_selected)
 
 func gen_shop_items(run_info : RunInfo):
-	items.clear()
 	for i in range(0,6):
 		var type = randi_range(0, 2)
 		var item = null
@@ -26,4 +29,6 @@ func gen_shop_items(run_info : RunInfo):
 			_:
 				item = NewLineBonus.gen_bonus(run_info)
 		shop_items[i].load_from_bonus(item)
-		items.append(item)
+
+func item_selected(bonus):
+	selected_item.emit(bonus)
