@@ -229,7 +229,7 @@ void tag_all_magnitude(flecs::world &ecs) {
 		});
 	});
 
-	ecs.filter<Spawn const>().each([&](flecs::entity ent, Spawn const &){
+	ecs.filter<Line const, Spawn const>().each([&](flecs::entity ent, Line const &, Spawn const &){
 		std::set<flecs::entity> set_tagged_l;
 		Magnitude cur = {0};
 		uint32_t max_delayed_magnitude = 0;
@@ -240,7 +240,7 @@ void tag_all_magnitude(flecs::world &ecs) {
 			std::vector<flecs::entity> next_magnitude = delayed_magnitude[cur.order];
 			for(flecs::entity ent : cur_magnitude) {
 
-				Magnitude * ent_magnitude = ent.get_mut<Magnitude>();
+				Magnitude * ent_magnitude = ent.mut(ecs).get_mut<Magnitude>();
 				if(!ent_magnitude) {
 					std::cerr<<"error no magnitude"<<std::endl;
 					continue;

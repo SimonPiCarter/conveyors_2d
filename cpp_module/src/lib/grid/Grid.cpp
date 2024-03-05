@@ -167,6 +167,26 @@ void merge_adjacent_cells(flecs::world &ecs, Grid &grid_p, Cell &a)
 	}
 }
 
+void clear_all_lines(flecs::world &ecs)
+{
+	ecs.defer([&] {
+		ecs.filter<CellLine const>()
+			.each([&](flecs::entity e, CellLine const&){
+				e.destruct();
+			});
+	});
+	ecs.defer([&] {
+		ecs.filter<Object const>()
+			.each([&](flecs::entity e, Object const&){
+				e.add<Consumed>();
+			});
+	});
+	ecs.filter<Cell>()
+		.each([&](flecs::entity e, Cell &cell){
+			cell.lines.clear();
+		});
+}
+
 void add_all_cell_lines(flecs::world &ecs)
 {
 	ecs.defer([&] {

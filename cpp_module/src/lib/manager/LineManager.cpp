@@ -182,14 +182,6 @@ void LineManager::init(int seed_p)
 		add_recipe_and_storer_to_line(18, 17, types_l, qty_l, 30.);
 	}
 
-	add_all_cell_lines(ecs);
-	merge_all_cells(ecs, grid);
-	create_all_lines(ecs);
-	link_all_simple_cells(ecs);
-	link_all_splitter_cells(ecs);
-	link_all_merger_cells(ecs);
-	tag_all_magnitude(ecs);
-
 	// systems
 
 	add_splitter_system(ecs);
@@ -265,6 +257,21 @@ void LineManager::_process(double delta)
 	&& (_timestamp < _max_timestamp || _max_timestamp == 0))
 	{
 		_elapsed -= time_step;
+
+		// set up all lines
+		if(_timestamp == 0)
+		{
+			// reset all
+			clear_all_lines(ecs);
+			add_all_cell_lines(ecs);
+			merge_all_cells(ecs, grid);
+			create_all_lines(ecs);
+			link_all_simple_cells(ecs);
+			link_all_splitter_cells(ecs);
+			link_all_merger_cells(ecs);
+			tag_all_magnitude(ecs);
+		}
+
 		++_timestamp;
 		// finish old loop
 		if(_thread)
@@ -472,6 +479,10 @@ void LineManager::clear_all()
 
 void LineManager::key_pressed(int key_p)
 {
+	if(key_p == KEY_SPACE)
+	{
+		clear_all();
+	}
 }
 
 double LineManager::get_score() const
