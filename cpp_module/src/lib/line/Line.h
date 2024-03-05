@@ -55,15 +55,20 @@ struct Line {
 	// true when the last step call has sent an
 	// item to the next line
 	bool sent_to_next = false;
+	uint32_t performed_movement = 0;
+	bool ignore_performed_movement = false;
+	bool ignore_next_dist = false;
 };
 
 bool is_empty(Line const &line_p);
 
-bool can_add(Line &line_p);
+bool can_add(Line const &line_p, bool anticipate_move=false);
 
 bool neo_add_to_start(Line &line_p, flecs::entity_view const &item_p, uint32_t movement_p);
 
-int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p);
+int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p, bool ignore_next_dist = false);
+
+bool can_consume(Line const &line_p);
 
 flecs::entity_view remove_first_from_line(Line &line_p);
 

@@ -16,9 +16,10 @@ bool is_empty(Line const &line_p)
 	return line_p.first >= line_p.items.size();
 }
 
-bool can_add(Line &line_p)
+bool can_add(Line const &line_p, bool anticipate_move)
 {
-	if(line_p.dist_start < 100 || line_p.free_idx.size() == 0)
+	uint32_t needed_space = 100 - (anticipate_move ? line_p.speed : 0);
+	if(line_p.dist_start < needed_space || line_p.free_idx.size() == 0)
 	{
 		return false;
 	}
@@ -35,18 +36,27 @@ bool neo_add_to_start(Line &line_p, flecs::entity_view const &item_p, uint32_t m
 	size_t idx_l = line_p.free_idx.front();
 	line_p.free_idx.pop_front();
 
+	uint32_t capped_move = movement_p;
+	if(line_p.performed_movement > movement_p)
+	{
+		capped_move = 0;
+	}
+	else
+	{
+		capped_move -= line_p.performed_movement;
+	}
 	// cap movement
 	if(is_empty(line_p))
 	{
 		// cap movement
-		uint32_t capped_move = std::min(line_p.dist_start, movement_p);
+		capped_move = std::min(line_p.dist_start, capped_move);
 		line_p.first = idx_l;
 		line_p.dist_end = line_p.full_dist - capped_move;
 	}
 	else
 	{
 		// cap movement further
-		uint32_t capped_move = std::min(line_p.dist_start - 100, movement_p);
+		capped_move = std::min(line_p.dist_start - 100, capped_move);
 		// update chaining
 		line_p.items[line_p.last].next = idx_l;
 		line_p.items[line_p.last].dist_to_next = line_p.dist_start - capped_move;
@@ -59,25 +69,25 @@ bool neo_add_to_start(Line &line_p, flecs::entity_view const &item_p, uint32_t m
 	line_p.items[idx_l].dist_to_next = 0;
 
 	// update distance
-	line_p.dist_start = movement_p;
+	line_p.dist_start = capped_move;
 
 	return true;
 }
 
-int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p)
+int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p, bool ignore_next_dist)
 {
 	if(last_p >= line_p.items.size())
 	{
 		if(!line_p.next_line)
 		{
-			return line_p.dist_end;
+			return line_p.dist_end-50;
 		}
 		int32_t max_movement = line_p.dist_end;
 		if(line_p.next_line->full_dist >= 100)
 		{
 			max_movement += line_p.next_line->dist_start;
 		}
-		if(!is_empty(*line_p.next_line))
+		if(!is_empty(*line_p.next_line) && !ignore_next_dist)
 		{
 			max_movement = std::max(0, max_movement - 100);
 		}
@@ -89,6 +99,11 @@ int32_t get_max_movement(Line const &line_p, size_t last_p, size_t cur_p)
 		return std::max<int32_t>(0, item.dist_to_next - 100);
 	}
 	return 0;
+}
+
+bool can_consume(Line const &line_p)
+{
+	return !is_empty(line_p) && line_p.dist_end <= std::max<uint32_t>(line_p.speed, 50);
 }
 
 flecs::entity_view remove_first_from_line(Line &line_p)
@@ -114,6 +129,7 @@ flecs::entity_view remove_first_from_line(Line &line_p)
 void neo_step(Line &line_p)
 {
 	line_p.sent_to_next = false;
+	line_p.performed_movement = line_p.speed;
 	if(is_empty(line_p))
 	{
 		return;
@@ -127,7 +143,7 @@ void neo_step(Line &line_p)
 	// while we have remaining movement to be handled
 	while(move > 0 && cur < line_p.items.size())
 	{
-		int32_t max_movement = get_max_movement(line_p, last, cur);
+		int32_t max_movement = get_max_movement(line_p, last, cur, line_p.ignore_next_dist);
 
 		remaining_movement = std::max(0, move - max_movement);
 		move = std::min(move, max_movement);
@@ -145,7 +161,8 @@ void neo_step(Line &line_p)
 		}
 		// if this is the first element of the line
 		// and there is enough room on the line
-		else if(move <= line_p.dist_end)
+		else if(move < line_p.dist_end
+			|| (move == line_p.dist_end && !line_p.next_line))
 		{
 			line_p.dist_end -= move;
 			move = remaining_movement;
@@ -157,18 +174,31 @@ void neo_step(Line &line_p)
 		// on the next one
 		else if(line_p.next_line)
 		{
-			neo_add_to_start(*line_p.next_line, item_l.ent, move - line_p.dist_end);
-			remove_first_from_line(line_p);
-			// do not update remaining move!
-			last = line_p.items.size();
-			cur = line_p.first;
-			line_p.sent_to_next = true;
+			if(neo_add_to_start(*line_p.next_line, item_l.ent, move - line_p.dist_end))
+			{
+				remove_first_from_line(line_p);
+				// do not update remaining move!
+				last = line_p.items.size();
+				cur = line_p.first;
+				line_p.sent_to_next = true;
+			}
+			else
+			{
+				line_p.dist_end -= move;
+				move = remaining_movement;
+				last = cur;
+				cur = item_l.next;
+			}
 		}
 	}
 
-	unsigned long performed_movement = line_p.speed - remaining_movement;
+	line_p.performed_movement = line_p.speed - remaining_movement;
 	// update the distance to start based on the total movement of the last item entered in the line
-	line_p.dist_start += performed_movement;
+	line_p.dist_start += line_p.performed_movement;
+	if(line_p.ignore_performed_movement)
+	{
+		line_p.performed_movement = 0;
+	}
 }
 
 void for_each_item(Line const &line_p, std::function<void(ItemOnLine const &, int32_t)> const &func_p)

@@ -3,6 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <iostream>
 
+#include "lib/line/storer/Storer.h"
 #include "lib/pipeline/PipelineSteps.h"
 #include "lib/grid/Cell.h"
 #include "lib/drawing/Drawing.h"
@@ -78,5 +79,21 @@ void set_up_line_systems(flecs::world &ecs, uint32_t const &timestamp_p, float c
 		})
 		.each([](flecs::entity ent, const Magnitude &m, Line &line_p) {
 			neo_step(line_p);
+		});
+
+	ecs.system<Line, ConnectedToStorer const>()
+		.kind<Iteration>()
+		.each([&](flecs::entity const &ent, Line &line_p, ConnectedToStorer const &storer_p) {
+			if(can_consume(line_p))
+			{
+				flecs::entity_view ent_consumed_l = remove_first_from_line(line_p);
+				Object const *object_l = ent_consumed_l.get<Object>();
+				if(object_l && storer_p.storer_ent.get<Storer>())
+				{
+					Storer * storer_l = storer_p.storer_ent.mut(ent).get_mut<Storer>();
+					add_to_storage(*storer_l, object_l->type);
+					ent_consumed_l.mut(ent).add<Consumed>();
+				}
+			}
 		});
 }

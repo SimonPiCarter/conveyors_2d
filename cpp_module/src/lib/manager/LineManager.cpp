@@ -8,6 +8,7 @@
 
 #include "lib/pipeline/PipelineSteps.h"
 #include "lib/line/systems/LineSystems.h"
+#include "lib/line/storer/Storer.h"
 #include "lib/line/Splitter.h"
 #include "lib/line/Merger.h"
 #include "lib/drawing/systems/DrawingSystems.h"
@@ -58,17 +59,13 @@ void LineManager::init(int seed_p)
 
 	//// >LEVEL INSTANCE
 
-	grid.set(10, 7, create_up(ecs, 10, 7));
-	grid.set(10, 8, create_up(ecs, 10, 8));
-	grid.set(10, 10, create_up(ecs, 10, 10));
-	grid.set(10, 9, create_up(ecs, 10, 9));
-	grid.set(10, 6, create_up(ecs, 10, 6));
-	grid.set(10, 5, create_up(ecs, 10, 5));
-	grid.set(10, 4, create_up(ecs, 10, 4));
+	// 10,4 -> 10,10
+	for(int i = 4; i < 11 ; ++ i)
+		grid.set(10, i, create_up(ecs, 10, i));
 
-	grid.set(13, 11, create_left(ecs, 13, 11));
-	grid.set(11, 11, create_left(ecs, 11, 11));
-	grid.set(12, 11, create_left(ecs, 12, 11));
+	// 13,11 -> 11,11
+	for(int i = 11; i < 14 ; ++ i)
+		grid.set(i, 11, create_left(ecs, i, 11));
 
 	grid.set(14, 10, create_down(ecs, 14, 10));
 	grid.set(14, 9, create_down(ecs, 14, 9));
@@ -176,6 +173,17 @@ void LineManager::init(int seed_p)
 	cell_line = cell_component->lines[0];
 	cell_line.set<Spawn>({{3}, 4, 0});
 
+	flecs::entity storer = ecs.entity("storer").add<Storer>();
+
+	cell = grid.get(30, 25);
+	cell_component = cell.get<Cell>();
+	cell_line = cell_component->lines[0];
+	cell_line.set<ConnectedToStorer>({storer});
+
+	cell = grid.get(18, 17);
+	cell_component = cell.get<Cell>();
+	cell_line = cell_component->lines[0];
+	cell_line.set<ConnectedToStorer>({storer});
 	tag_all_magnitude(ecs);
 
 	// systems

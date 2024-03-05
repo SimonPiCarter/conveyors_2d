@@ -200,20 +200,42 @@ void link_all_splitter_cells(flecs::world &ecs)
 				CellLine const &pos0_l = *cell.lines[0].get<CellLine>();
 				CellLine const &pos1_l = *cell.lines[1].get<CellLine>();
 				CellLine const &pos2_l = *cell.lines[2].get<CellLine>();
+				Splitter splitter;
+				bool not_found = false;
 				if(pos0_l.end == pos1_l.start
 				&& pos0_l.end == pos2_l.start)
 				{
-					e.set<Splitter>({line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}});
+					splitter = {line1.get_ref<Line>(), line2.get_ref<Line>()};
 				}
 				else if(pos1_l.end == pos0_l.start
 					 && pos1_l.end == pos2_l.start)
 				{
-					e.set<Splitter>({line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}});
+					splitter = {line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}};
 				}
 				else if(pos2_l.end == pos0_l.start
 					 && pos2_l.end == pos1_l.start)
 				{
-					e.set<Splitter>({line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}});
+					splitter = {line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}};
+				}
+				else
+				{
+					not_found = true;
+				}
+				if(!not_found)
+				{
+					// make output ignore performed movement
+					// this fasten the insertion on line and
+					// avoid slowing down
+					if(splitter.out[0].try_get()) {
+						splitter.out[0].try_get()->ignore_performed_movement = true;
+					}
+					if(splitter.out[1].try_get()) {
+						splitter.out[1].try_get()->ignore_performed_movement = true;
+					}
+					if(splitter.in.try_get()) {
+						splitter.in.try_get()->ignore_next_dist = true;
+					}
+					e.set<Splitter>(splitter);
 				}
 			}
 		});
@@ -237,20 +259,36 @@ void link_all_merger_cells(flecs::world &ecs)
 				CellLine const &pos0_l = *cell.lines[0].get<CellLine>();
 				CellLine const &pos1_l = *cell.lines[1].get<CellLine>();
 				CellLine const &pos2_l = *cell.lines[2].get<CellLine>();
+				Merger merger;
+				bool not_found = false;
 				if(pos0_l.start == pos1_l.end
 				&& pos0_l.start == pos2_l.end)
 				{
-					e.set<Merger>({line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}});
+					merger = {line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}};
 				}
 				else if(pos1_l.start == pos0_l.end
 					 && pos1_l.start == pos2_l.end)
 				{
-					e.set<Merger>({line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}});
+					merger = {line1.get_ref<Line>(), {line0.get_ref<Line>(), line2.get_ref<Line>()}};
 				}
 				else if(pos2_l.start == pos0_l.end
 					 && pos2_l.start == pos1_l.end)
 				{
-					e.set<Merger>({line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}});
+					merger = {line2.get_ref<Line>(), {line0.get_ref<Line>(), line1.get_ref<Line>()}};
+				}
+				else
+				{
+					not_found = true;
+				}
+				if(!not_found)
+				{
+					// make output ignore performed movement
+					// this fasten the insertion on line and
+					// avoid slowing down
+					if(merger.out.try_get()) {
+						merger.out.try_get()->ignore_performed_movement = true;
+					}
+					e.set<Merger>(merger);
 				}
 			}
 		});
