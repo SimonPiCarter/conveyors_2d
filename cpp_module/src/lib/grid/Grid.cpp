@@ -276,7 +276,7 @@ void link_all_splitter_cells(flecs::world &ecs)
 				if(pos0_l.end == pos1_l.start
 				&& pos0_l.end == pos2_l.start)
 				{
-					splitter = {line1.get_ref<Line>(), line2.get_ref<Line>()};
+					splitter = {line0.get_ref<Line>(), {line1.get_ref<Line>(), line2.get_ref<Line>()}};
 				}
 				else if(pos1_l.end == pos0_l.start
 					 && pos1_l.end == pos2_l.start)
