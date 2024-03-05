@@ -38,4 +38,18 @@ static func getBeltFrame(mode : BuildMode.Mode, horizontal, negative, flipped):
 				return load("res://godot/frames/belt/v3/merger/merger_up_"+flipped_str+".tres")
 			else:
 				return load("res://godot/frames/belt/v3/merger/merger_down_"+flipped_str+".tres")
+	elif mode == BuildMode.Mode.TURN:
+		if horizontal:
+			var flipped_str = "up" if flipped else "down"
+			if negative:
+				return load("res://godot/frames/belt/v3/turn/turn_left_"+flipped_str+".tres")
+			else:
+				return load("res://godot/frames/belt/v3/turn/turn_right_"+flipped_str+".tres")
+		else:
+			var flipped_str = "left" if flipped else "right"
+			if negative:
+				return load("res://godot/frames/belt/v3/turn/turn_up_"+flipped_str+".tres")
+			else:
+				return load("res://godot/frames/belt/v3/turn/turn_down_"+flipped_str+".tres")
+
 	return null
