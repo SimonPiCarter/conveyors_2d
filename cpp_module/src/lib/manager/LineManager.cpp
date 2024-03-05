@@ -148,12 +148,6 @@ void LineManager::init(int seed_p)
 	create_cell_half_line_right(ecs, ent, false);
 	create_cell_half_line_up(ecs, ent, true);
 
-	merge_all_cells(ecs, grid);
-	create_all_lines(ecs);
-	link_all_simple_cells(ecs);
-	link_all_splitter_cells(ecs);
-	link_all_merger_cells(ecs);
-
 	flecs::entity cell = grid.get(14, 8);
 	Cell const * cell_component = cell.get<Cell>();
 	flecs::entity cell_line = cell_component->lines[0];
@@ -174,6 +168,14 @@ void LineManager::init(int seed_p)
 	cell_line = cell_component->lines[0];
 	cell_line.set<Spawn>({{3}, 4, 0});
 
+	merge_all_cells(ecs, grid);
+	create_all_lines(ecs);
+	link_all_simple_cells(ecs);
+	link_all_splitter_cells(ecs);
+	link_all_merger_cells(ecs);
+	tag_all_magnitude(ecs);
+
+
 	flecs::entity storer = ecs.entity("storer").add<Storer>();
 	level.recipes.push_back({{{{0,1}, {3,1}}, 30.}, storer.get_ref<Storer>()});
 
@@ -186,7 +188,7 @@ void LineManager::init(int seed_p)
 	cell_component = cell.get<Cell>();
 	cell_line = cell_component->lines[0];
 	cell_line.set<ConnectedToStorer>({storer});
-	tag_all_magnitude(ecs);
+
 
 	// systems
 

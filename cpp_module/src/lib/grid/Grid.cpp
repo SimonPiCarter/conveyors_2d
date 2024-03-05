@@ -6,6 +6,7 @@
 #include "lib/line/Line.h"
 #include "lib/line/Merger.h"
 #include "lib/line/Splitter.h"
+#include "lib/line/storer/Storer.h"
 
 Grid::Grid(int32_t x_p, int32_t y_p)
 	: size_x(x_p), size_y(y_p), _data(x_p*y_p, flecs::entity())
@@ -104,6 +105,25 @@ flecs::entity merge_lines(flecs::world &ecs, flecs::entity a, flecs::entity b)
 	}
 
 	new_line.set(line);
+
+	if(a.get<Spawn>()) {
+		Spawn copy_l = *a.get<Spawn>();
+		new_line.set(copy_l);
+	}
+	else if(b.get<Spawn>()) {
+		Spawn copy_l = *b.get<Spawn>();
+		new_line.set(copy_l);
+	}
+
+	if(a.get<ConnectedToStorer>()) {
+		ConnectedToStorer copy_l = *a.get<ConnectedToStorer>();
+		new_line.set(copy_l);
+	}
+	else if(b.get<ConnectedToStorer>()) {
+		ConnectedToStorer copy_l = *b.get<ConnectedToStorer>();
+		new_line.set(copy_l);
+	}
+
 	a.destruct();
 	b.destruct();
 
