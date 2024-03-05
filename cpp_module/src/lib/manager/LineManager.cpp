@@ -62,11 +62,11 @@ void LineManager::init(int seed_p)
 
 	// 10,4 -> 10,10
 	for(int i = 4; i < 11 ; ++ i)
-		grid.set(10, i, create_up(ecs, 10, i));
+		spawn_line(10, i, false, true);
 
 	// 13,11 -> 11,11
 	for(int i = 11; i < 14 ; ++ i)
-		grid.set(i, 11, create_left(ecs, i, 11));
+		spawn_line(i, 11, true, true);
 
 	grid.set(14, 10, create_down(ecs, 14, 10));
 	grid.set(14, 9, create_down(ecs, 14, 9));
