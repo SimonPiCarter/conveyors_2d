@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://dqwnns8g2s7wc"]
+
+[ext_resource type="Texture2D" uid="uid://bpoewuyrc6fds" path="res://godot/sprites/belts/belt_v3.png" id="1_wcopi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oc6a2"]
+atlas = ExtResource("1_wcopi")
+region = Rect2(24, 0, 24, 24)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oc6a2")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
