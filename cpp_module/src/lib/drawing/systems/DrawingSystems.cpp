@@ -16,8 +16,6 @@ void set_up_display_systems(flecs::world &ecs, godot::LineManager *manager_p) {
 		.kind<DisplayInit>()
 		.each([manager_p](flecs::entity &ent, DrawingInit const &init_p) {
 			Drawing drawing_l;
-			init_p.x;
-			init_p.y;
 			FrameInfo const & sprite_frame = manager_p->getFramesLibrary()->getFrameInfo(init_p.frame);
 			drawing_l.idx = manager_p->getEntityDrawer()->add_instance(
 				Vector2(init_p.x, init_p.y),
