@@ -128,15 +128,10 @@ void LineManager::init(int seed_p)
 	spawn_turn(18, 3, true, false, false);
 	spawn_turn(20, 30, false, false, false);
 
-	flecs::entity ent = create_empty(ecs, 14, 11);
-	create_cell_half_line_left(ecs, ent, false);
-	create_cell_half_line_down(ecs, ent, false);
-	create_cell_half_line_up(ecs, ent, true);
+	spawn_splitter(14, 11, false, false, true);
 
-	ent = create_empty(ecs, 20, 16);
-	create_cell_half_line_right(ecs, ent, true);
-	create_cell_half_line_down(ecs, ent, false);
-	create_cell_half_line_up(ecs, ent, true);
+
+	spawn_merger(20, 16, false, false, true);
 
 	{
 		TypedArray<int> array_l; array_l.append(0);
@@ -417,10 +412,86 @@ void LineManager::remove_line(int x, int y)
 
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
+	flecs::entity ent = create_empty(ecs, x, y);
+	if(horizontal_p && negative_p)
+	{
+		create_cell_half_line_right(ecs, ent, true);
+		create_cell_half_line_left(ecs, ent, false);
+	}
+	if(horizontal_p && !negative_p)
+	{
+		create_cell_half_line_left(ecs, ent, true);
+		create_cell_half_line_right(ecs, ent, false);
+	}
+	if(!horizontal_p && negative_p)
+	{
+		create_cell_half_line_down(ecs, ent, true);
+		create_cell_half_line_up(ecs, ent, false);
+	}
+	if(!horizontal_p && !negative_p)
+	{
+		create_cell_half_line_up(ecs, ent, true);
+		create_cell_half_line_down(ecs, ent, false);
+	}
+
+	if(horizontal_p && flipped_p)
+	{
+		create_cell_half_line_up(ecs, ent, false);
+	}
+	if(horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_down(ecs, ent, false);
+	}
+	if(!horizontal_p && flipped_p)
+	{
+		create_cell_half_line_left(ecs, ent, false);
+	}
+	if(!horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_right(ecs, ent, false);
+	}
 }
 
 void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
+	flecs::entity ent = create_empty(ecs, 20, 16);
+	if(horizontal_p && negative_p)
+	{
+		create_cell_half_line_right(ecs, ent, true);
+		create_cell_half_line_left(ecs, ent, false);
+	}
+	if(horizontal_p && !negative_p)
+	{
+		create_cell_half_line_left(ecs, ent, true);
+		create_cell_half_line_right(ecs, ent, false);
+	}
+	if(!horizontal_p && negative_p)
+	{
+		create_cell_half_line_down(ecs, ent, true);
+		create_cell_half_line_up(ecs, ent, false);
+	}
+	if(!horizontal_p && !negative_p)
+	{
+		create_cell_half_line_up(ecs, ent, true);
+		create_cell_half_line_down(ecs, ent, false);
+	}
+
+	if(horizontal_p && flipped_p)
+	{
+		create_cell_half_line_down(ecs, ent, true);
+	}
+	if(horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_up(ecs, ent, true);
+	}
+	if(!horizontal_p && flipped_p)
+	{
+		create_cell_half_line_right(ecs, ent, true);
+	}
+	if(!horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_left(ecs, ent, true);
+	}
 }
 
 void LineManager::add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p)
