@@ -72,8 +72,8 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
 		handle_clic(build_overlay.x, build_overlay.y)
 
-	# if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_RIGHT:
-	# 	line_manager.remove_line(build_overlay.x, build_overlay.y)
+	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_RIGHT:
+		line_manager.remove_line(build_overlay.x, build_overlay.y)
 
 func init():
 	recipe_selector.init(run_info)
