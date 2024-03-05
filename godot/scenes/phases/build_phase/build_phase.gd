@@ -23,6 +23,8 @@ func update_text():
 		type_str = "Merger"
 	elif mode == BuildMode.Mode.SPLITTER:
 		type_str = "Splitter"
+	elif mode == BuildMode.Mode.TURN:
+		type_str = "Turn"
 	label.text = \
 		("horizontal" if horizontal else "vertical") + "\n" + \
 		("negative" if negative else "positive") + "\n" + \
@@ -31,12 +33,15 @@ func update_text():
 	build_overlay.update_overlay(mode, horizontal, negative, flipped)
 
 func handle_clic(x, y):
+	var frame = BeltFrameHelper.getBeltFrame(mode, horizontal, negative, flipped)
 	if mode == BuildMode.Mode.MERGER:
-		line_manager.spawn_merger(x, y , horizontal, negative, flipped)
+		line_manager.spawn_merger(x, y , horizontal, negative, flipped, frame)
 	elif mode == BuildMode.Mode.SPLITTER:
-		line_manager.spawn_splitter(x, y , horizontal, negative, flipped)
+		line_manager.spawn_splitter(x, y , horizontal, negative, flipped, frame)
+	elif mode == BuildMode.Mode.TURN:
+		line_manager.spawn_turn(x, y , horizontal, negative, flipped, frame)
 	else:
-		line_manager.spawn_line(x, y , horizontal, negative)
+		line_manager.spawn_line(x, y , horizontal, negative, frame)
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.is_pressed():
@@ -53,23 +58,22 @@ func _unhandled_input(event):
 			mode = BuildMode.Mode.SPLITTER
 		if event.keycode == KEY_E:
 			mode = BuildMode.Mode.LINE
+		if event.keycode == KEY_Q:
+			mode = BuildMode.Mode.TURN
 
 		update_text()
 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
-		var x = int(event.global_position.x/line_manager.get_world_size())
-		var y = int(event.global_position.y/line_manager.get_world_size())
-		handle_clic(x, y)
+		handle_clic(build_overlay.x, build_overlay.y)
 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
-		var x = int(event.global_position.x/line_manager.get_world_size())
-		var y = int(event.global_position.y/line_manager.get_world_size())
-		line_manager.remove_line(x, y)
+		line_manager.remove_line(build_overlay.x, build_overlay.y)
 
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
-		var x = int(event.global_position.x/line_manager.get_world_size())
-		var y = int(event.global_position.y/line_manager.get_world_size())
-		handle_clic(x, y)
+		handle_clic(build_overlay.x, build_overlay.y)
+
+	# if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_RIGHT:
+	# 	line_manager.remove_line(build_overlay.x, build_overlay.y)
 
 func init():
 	recipe_selector.init(run_info)

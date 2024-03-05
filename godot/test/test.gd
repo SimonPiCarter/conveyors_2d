@@ -21,28 +21,6 @@ func _ready():
 	frames_library.addFrame("pink", preload("res://godot/frames/jams/pink.tres"), Vector2(-10,-10), false)
 	frames_library.addFrame("red", preload("res://godot/frames/jams/red.tres"), Vector2(-10,-10), false)
 	frames_library.addFrame("yellow", preload("res://godot/frames/jams/yellow.tres"), Vector2(-10,-10), false)
-	frames_library.addFrame("belt", preload("res://godot/frames/belt/belt_v1.tres"), Vector2(0,0), false)
-	frames_library.addFrame("belt_down", preload("res://godot/frames/belt/belt_down_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("belt_left", preload("res://godot/frames/belt/belt_left_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("belt_right", preload("res://godot/frames/belt/belt_right_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("belt_up", preload("res://godot/frames/belt/belt_up_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_down_flipped", preload("res://godot/frames/belt/merger_down_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_down", preload("res://godot/frames/belt/merger_down_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_left_flipped", preload("res://godot/frames/belt/merger_left_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_left", preload("res://godot/frames/belt/merger_left_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_right_flipped", preload("res://godot/frames/belt/merger_right_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_right", preload("res://godot/frames/belt/merger_right_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_up_flipped", preload("res://godot/frames/belt/merger_up_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("merger_up", preload("res://godot/frames/belt/merger_up_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_down_flipped", preload("res://godot/frames/belt/splitter_down_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_down", preload("res://godot/frames/belt/splitter_down_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_left_flipped", preload("res://godot/frames/belt/splitter_left_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_left", preload("res://godot/frames/belt/splitter_left_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_right_flipped", preload("res://godot/frames/belt/splitter_right_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_right", preload("res://godot/frames/belt/splitter_right_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_up_flipped", preload("res://godot/frames/belt/splitter_up_flipped_v2.tres"), Vector2(0,0), false)
-	frames_library.addFrame("splitter_up", preload("res://godot/frames/belt/splitter_up_v2.tres"), Vector2(0,0), false)
-
 	line_manager.set_max_timestamp(300)
 
 	line_manager.setEntityDrawer(entity_drawer)
@@ -91,7 +69,8 @@ func _process(_delta):
 	var time_left = 30. - line_manager.get_timestamp()/10.
 	fps_label.text = "fps "+String.num(Engine.get_frames_per_second(), 0)+\
 		"\nscore "+String.num(line_manager.get_score(),0)+\
-		"\ntime "+String.num(time_left,1)+"s"
+		"\ntime "+String.num(time_left,1)+"s"+\
+		"\nstate : "+PhaseState.get_phase_name(phase_state.current_phase)
 
 	if phase_state.current_phase == PhaseState.Phase.RUNNING and line_manager.is_over():
 		# TMP

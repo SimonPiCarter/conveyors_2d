@@ -40,3 +40,18 @@ func set_phase(phase : Phase):
 		line_manager.clear_all()
 
 	current_phase = phase
+
+static func get_phase_name(phase : Phase) -> String:
+	match phase:
+		Phase.RUNNING:
+			return "RUNNING"
+		Phase.SCORE:
+			return "SCORE"
+		Phase.SHOP:
+			return "SHOP"
+		Phase.BUILDING:
+			return "BUILDING"
+		Phase.START:
+			return "START"
+		_:
+			return "unknown"
