@@ -122,30 +122,20 @@ void LineManager::init(int seed_p)
 	for(int i = 2 ; i < 26 ; ++ i)
 		grid.set(30, i, create_down(ecs, 30, i));
 
-	flecs::entity ent = create_empty(ecs, 10, 11);
-	create_cell_half_line_right(ecs, ent, true);
-	create_cell_half_line_up(ecs, ent, false);
 
-	ent = create_empty(ecs, 14, 11);
+	spawn_turn(10, 11, true, true, true);
+	spawn_turn(10, 3, false, true, false);
+	spawn_turn(18, 3, true, false, false);
+	spawn_turn(20, 30, false, false, false);
+
+	flecs::entity ent = create_empty(ecs, 14, 11);
 	create_cell_half_line_left(ecs, ent, false);
 	create_cell_half_line_down(ecs, ent, false);
 	create_cell_half_line_up(ecs, ent, true);
 
-	ent = create_empty(ecs, 10, 3);
-	create_cell_half_line_right(ecs, ent, false);
-	create_cell_half_line_down(ecs, ent, true);
-
-	ent = create_empty(ecs, 18, 3);
-	create_cell_half_line_left(ecs, ent, true);
-	create_cell_half_line_down(ecs, ent, false);
-
 	ent = create_empty(ecs, 20, 16);
 	create_cell_half_line_right(ecs, ent, true);
 	create_cell_half_line_down(ecs, ent, false);
-	create_cell_half_line_up(ecs, ent, true);
-
-	ent = create_empty(ecs, 20, 30);
-	create_cell_half_line_right(ecs, ent, false);
 	create_cell_half_line_up(ecs, ent, true);
 
 	{
@@ -372,6 +362,44 @@ void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 	}
 
 	grid.set(x, y, ent);
+}
+
+void LineManager::spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+{
+	flecs::entity ent = create_empty(ecs, x, y);
+	if(horizontal_p && negative_p)
+	{
+		create_cell_half_line_right(ecs, ent, true);
+	}
+	if(horizontal_p && !negative_p)
+	{
+		create_cell_half_line_left(ecs, ent, true);
+	}
+	if(!horizontal_p && negative_p)
+	{
+		create_cell_half_line_down(ecs, ent, true);
+	}
+	if(!horizontal_p && !negative_p)
+	{
+		create_cell_half_line_up(ecs, ent, true);
+	}
+
+	if(horizontal_p && flipped_p)
+	{
+		create_cell_half_line_up(ecs, ent, false);
+	}
+	if(horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_down(ecs, ent, false);
+	}
+	if(!horizontal_p && flipped_p)
+	{
+		create_cell_half_line_left(ecs, ent, false);
+	}
+	if(!horizontal_p && !flipped_p)
+	{
+		create_cell_half_line_right(ecs, ent, false);
+	}
 }
 
 void LineManager::remove_line(int x, int y)
