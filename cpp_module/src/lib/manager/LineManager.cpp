@@ -507,6 +507,11 @@ void LineManager::clear_all()
 			});
 	});
 
+	ecs.filter<Storer>()
+		.each([&](flecs::entity e, Storer &storer_p){
+			storer_p.quantities.clear();
+		});
+
 	ecs.set_pipeline(display_pipeline);
 	ecs.progress();
 
