@@ -24,4 +24,6 @@ func _ready():
 
 	line_manager.init(42)
 
-
+func _unhandled_input(event):
+	if event is InputEventKey and event.is_pressed():
+		line_manager.key_pressed(event.keycode)
