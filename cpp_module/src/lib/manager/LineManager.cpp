@@ -8,6 +8,7 @@
 
 #include "lib/pipeline/PipelineSteps.h"
 #include "lib/line/systems/LineSystems.h"
+#include "lib/line/recipe/Recipe.h"
 #include "lib/line/storer/Storer.h"
 #include "lib/line/Splitter.h"
 #include "lib/line/Merger.h"
@@ -174,6 +175,7 @@ void LineManager::init(int seed_p)
 	cell_line.set<Spawn>({{3}, 4, 0});
 
 	flecs::entity storer = ecs.entity("storer").add<Storer>();
+	level.recipes.push_back({{{{0,1}, {3,1}}, 30.}, storer.get_ref<Storer>()});
 
 	cell = grid.get(30, 25);
 	cell_component = cell.get<Cell>();
@@ -229,6 +231,18 @@ void LineManager::loop()
 
 	ecs.set_pipeline(iteration_pipeline);
 	ecs.progress();
+
+	// update score
+	double score_l = 0;
+	for(RecipePack const &pack_l : level.recipes)
+	{
+		flecs::ref<Storer> storer_l = pack_l.storer;
+		if(storer_l.try_get())
+		{
+			score_l += compute_value(pack_l.recipe, *storer_l.try_get());
+		}
+	}
+	score = score_l;
 
 	auto end{std::chrono::steady_clock::now()};
 	std::chrono::duration<double> diff = end - start;
@@ -406,10 +420,9 @@ void LineManager::key_pressed(int key_p)
 {
 }
 
-double LineManager::get_score()
+double LineManager::get_score() const
 {
-	double score_l = 0;
-	return score_l;
+	return score;
 }
 
 }

@@ -12,6 +12,7 @@
 #include "entity_drawer/FramesLibrary.h"
 
 #include "lib/line/Line.h"
+#include "lib/level/Level.h"
 #include "lib/grid/Grid.h"
 
 namespace godot {
@@ -63,7 +64,7 @@ public:
 
 	/// DEBUG
 	void key_pressed(int key_p);
-	double get_score();
+	double get_score() const;
 
 private:
 	std::thread * _thread = nullptr;
@@ -87,6 +88,8 @@ private:
 
 	flecs::world ecs;
 	Grid grid = {512, 512};
+	Level level;
+	double score = 0;
 
 	EntityDrawer * _drawer = nullptr;
 	EntityDrawer * _drawer2 = nullptr;
