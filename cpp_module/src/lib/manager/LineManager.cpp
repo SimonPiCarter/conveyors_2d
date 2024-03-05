@@ -12,6 +12,7 @@
 #include "lib/line/storer/Storer.h"
 #include "lib/line/Splitter.h"
 #include "lib/line/Merger.h"
+#include "lib/drawing/Drawing.h"
 #include "lib/drawing/systems/DrawingSystems.h"
 
 namespace godot {
@@ -57,115 +58,6 @@ void LineManager::init(int seed_p)
 
 	delete _gen;
 	_gen = new std::mt19937(seed_p);
-
-	//// >LEVEL INSTANCE
-
-	// 10,4 -> 10,10
-	for(int i = 4; i < 11 ; ++ i)
-		spawn_line(10, i, false, true);
-
-	// 13,11 -> 11,11
-	for(int i = 11; i < 14 ; ++ i)
-		spawn_line(i, 11, true, true);
-
-	grid.set(14, 10, create_down(ecs, 14, 10));
-	grid.set(14, 9, create_down(ecs, 14, 9));
-	grid.set(14, 8, create_down(ecs, 14, 8));
-
-	grid.set(11, 3, create_right(ecs, 11, 3));
-	grid.set(12, 3, create_right(ecs, 12, 3));
-	grid.set(13, 3, create_right(ecs, 13, 3));
-	grid.set(14, 3, create_right(ecs, 14, 3));
-	grid.set(15, 3, create_right(ecs, 15, 3));
-	grid.set(16, 3, create_right(ecs, 16, 3));
-	grid.set(17, 3, create_right(ecs, 17, 3));
-
-	grid.set(18, 4, create_down(ecs, 18, 4));
-	grid.set(18, 5, create_down(ecs, 18, 5));
-	grid.set(18, 6, create_down(ecs, 18, 6));
-	grid.set(18, 7, create_down(ecs, 18, 7));
-	grid.set(18, 8, create_down(ecs, 18, 8));
-	grid.set(18, 9, create_down(ecs, 18, 9));
-	grid.set(18, 10, create_down(ecs, 18, 10));
-	grid.set(18, 11, create_down(ecs, 18, 11));
-	grid.set(18, 12, create_down(ecs, 18, 12));
-	grid.set(18, 13, create_down(ecs, 18, 13));
-	grid.set(18, 14, create_down(ecs, 18, 14));
-	grid.set(18, 15, create_down(ecs, 18, 15));
-	grid.set(18, 16, create_down(ecs, 18, 16));
-	grid.set(18, 17, create_down(ecs, 18, 17));
-
-	grid.set(14, 12, create_down(ecs, 14, 12));
-	grid.set(14, 13, create_down(ecs, 14, 13));
-	grid.set(14, 14, create_down(ecs, 14, 14));
-	grid.set(14, 15, create_down(ecs, 14, 15));
-
-	grid.set(20, 12, create_down(ecs, 20, 12));
-	grid.set(20, 13, create_down(ecs, 20, 13));
-	grid.set(20, 14, create_down(ecs, 20, 14));
-	grid.set(20, 15, create_down(ecs, 20, 15));
-
-	grid.set(24, 16, create_left(ecs, 24, 16));
-	grid.set(23, 16, create_left(ecs, 23, 16));
-	grid.set(22, 16, create_left(ecs, 22, 16));
-	grid.set(21, 16, create_left(ecs, 21, 16));
-
-	// 20,17 -> 20,29
-	for(int i = 17 ; i < 30 ; ++ i)
-		grid.set(20, i, create_down(ecs, 20, i));
-
-	// 21,30 -> 104,30
-	for(int i = 21 ; i < 105 ; ++ i)
-		grid.set(i, 30, create_right(ecs, i, 30));
-
-	// 30,2 -> 30,25
-	for(int i = 2 ; i < 26 ; ++ i)
-		grid.set(30, i, create_down(ecs, 30, i));
-
-
-	spawn_turn(10, 11, true, true, true);
-	spawn_turn(10, 3, false, true, false);
-	spawn_turn(18, 3, true, false, false);
-	spawn_turn(20, 30, false, false, false);
-
-	spawn_splitter(14, 11, false, false, true);
-
-
-	spawn_merger(20, 16, false, false, true);
-
-	{
-		TypedArray<int> array_l; array_l.append(0);
-		add_spawn_to_line(14, 8, array_l, 0);
-	}
-
-	{
-		TypedArray<int> array_l; array_l.append(1);
-		add_spawn_to_line(20, 12, array_l, 4);
-	}
-
-	{
-		TypedArray<int> array_l; array_l.append(2);
-		add_spawn_to_line(24, 16, array_l, 4);
-	}
-
-	{
-		TypedArray<int> array_l; array_l.append(3);
-		add_spawn_to_line(30, 2, array_l, 4);
-	}
-
-	flecs::entity storer = ecs.entity("storer").add<Storer>();
-	level.recipes.push_back({{{{0,1}, {3,1}}, 30.}, storer.get_ref<Storer>()});
-
-	{
-		TypedArray<int> types_l; types_l.append(0);
-		TypedArray<int> qty_l; qty_l.append(1);
-		add_recipe_and_storer_to_line(30, 25, types_l, qty_l, 3.);
-	}
-	{
-		TypedArray<int> types_l; types_l.append(3);
-		TypedArray<int> qty_l; qty_l.append(1);
-		add_recipe_and_storer_to_line(18, 17, types_l, qty_l, 30.);
-	}
 
 	// systems
 
@@ -289,10 +181,11 @@ void LineManager::_bind_methods()
 	ClassDB::bind_method(D_METHOD("setFramesLibrary", "library"), &LineManager::setFramesLibrary);
 	ClassDB::bind_method(D_METHOD("getFramesLibrary"), &LineManager::getFramesLibrary);
 	ClassDB::bind_method(D_METHOD("get_world_size"), &LineManager::get_world_size);
-	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative"), &LineManager::spawn_line);
+	ClassDB::bind_method(D_METHOD("spawn_line", "x", "y", "horizontal", "negative", "sprite_frame"), &LineManager::spawn_line);
+	ClassDB::bind_method(D_METHOD("spawn_turn", "x", "y", "horizontal", "negative", "flipped", "sprite_frame"), &LineManager::spawn_turn);
 	ClassDB::bind_method(D_METHOD("remove_line", "x", "y"), &LineManager::remove_line);
-	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_splitter);
-	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped"), &LineManager::spawn_merger);
+	ClassDB::bind_method(D_METHOD("spawn_splitter", "x", "y", "horizontal", "negative", "flipped", "sprite_frame"), &LineManager::spawn_splitter);
+	ClassDB::bind_method(D_METHOD("spawn_merger", "x", "y", "horizontal", "negative", "flipped", "sprite_frame"), &LineManager::spawn_merger);
 	ClassDB::bind_method(D_METHOD("add_spawn_to_line", "x", "y", "types", "spawn_time"), &LineManager::add_spawn_to_line);
 	ClassDB::bind_method(D_METHOD("add_recipe_and_storer_to_line", "x", "y", "types", "qty", "value"), &LineManager::add_recipe_and_storer_to_line);
 
@@ -340,8 +233,9 @@ FramesLibrary *LineManager::getFramesLibrary() const
 	return _framesLibrary;
 }
 
-void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
+void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p, Ref<SpriteFrames> const & animation_p)
 {
+	if(grid.get(x, y)) { return; }
 	flecs::entity ent;
 	if(horizontal_p && negative_p) {
 		ent = create_left(ecs, x, y);
@@ -356,11 +250,18 @@ void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 		ent = create_down(ecs, x, y);
 	}
 
+	if(_drawer2 && animation_p.is_valid()) {
+		int idx_l = _drawer2->add_instance(Vector2(x*world_size, y*world_size), Vector2(12,12), animation_p, "default", "", false);
+		ent.set<Drawing>({idx_l});
+	}
+
 	grid.set(x, y, ent);
 }
 
-void LineManager::spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+void LineManager::spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p)
 {
+	if(grid.get(x, y)) { return; }
+
 	flecs::entity ent = create_empty(ecs, x, y);
 	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
@@ -396,11 +297,20 @@ void LineManager::spawn_turn(int x, int y, bool horizontal_p, bool negative_p, b
 	{
 		create_cell_half_line_right(ecs, ent, false);
 	}
+
+	if(_drawer2 && animation_p.is_valid()) {
+		int idx_l = _drawer2->add_instance(Vector2(x*world_size, y*world_size), Vector2(12,12), animation_p, "default", "", false);
+		ent.set<Drawing>({idx_l});
+	}
 }
 
 void LineManager::remove_line(int x, int y)
 {
 	flecs::entity ent = grid.get(x, y);
+
+	if(_drawer2 && ent && ent.get<Drawing>()) {
+		_drawer2->set_animation_one_shot(ent.get<Drawing>()->idx, "default");
+	}
 
 	if(ent && ent.get<Cell>()) {
 		Cell const &cell_l = *ent.get<Cell>();
@@ -411,8 +321,10 @@ void LineManager::remove_line(int x, int y)
 	}
 }
 
-void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p)
 {
+	if(grid.get(x, y)) { return; }
+
 	flecs::entity ent = create_empty(ecs, x, y);
 	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
@@ -451,11 +363,18 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 	if(!horizontal_p && !flipped_p)
 	{
 		create_cell_half_line_right(ecs, ent, false);
+	}
+
+	if(_drawer2 && animation_p.is_valid()) {
+		int idx_l = _drawer2->add_instance(Vector2(x*world_size, y*world_size), Vector2(12,12), animation_p, "default", "", false);
+		ent.set<Drawing>({idx_l});
 	}
 }
 
-void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
+void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p)
 {
+	if(grid.get(x, y)) { return; }
+
 	flecs::entity ent = create_empty(ecs, x, y);
 	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
@@ -494,6 +413,11 @@ void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p,
 	if(!horizontal_p && !flipped_p)
 	{
 		create_cell_half_line_left(ecs, ent, true);
+	}
+
+	if(_drawer2 && animation_p.is_valid()) {
+		int idx_l = _drawer2->add_instance(Vector2(x*world_size, y*world_size), Vector2(12,12), animation_p, "default", "", false);
+		ent.set<Drawing>({idx_l});
 	}
 }
 

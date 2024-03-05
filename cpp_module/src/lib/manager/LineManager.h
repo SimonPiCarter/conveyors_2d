@@ -42,11 +42,11 @@ public:
 
 	float get_world_size() const { return world_size; }
 
-	void spawn_line(int x, int y, bool horizontal_p, bool negative_p);
-	void spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_line(int x, int y, bool horizontal_p, bool negative_p, Ref<SpriteFrames> const & animation_p);
+	void spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p);
 	void remove_line(int x, int y);
-	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
-	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p);
+	void spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p);
+	void spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p, Ref<SpriteFrames> const & animation_p);
 
 	void add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p);
 	void add_recipe_and_storer_to_line(int x, int y, TypedArray<int> const &types_p, TypedArray<int> const &qty_p, double value_p);
