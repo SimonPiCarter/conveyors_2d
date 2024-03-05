@@ -573,15 +573,21 @@ bool LineManager::is_build_phase()
 void LineManager::clear_all()
 {
 	_timestamp = 0;
+	ecs.defer([&] {
+		ecs.filter<::Object const>()
+			.each([&](flecs::entity e, ::Object const&){
+				e.add<Consumed>();
+			});
+	});
+
+	ecs.set_pipeline(display_pipeline);
+	ecs.progress();
+
 	_elapsed = 0;
 }
 
 void LineManager::key_pressed(int key_p)
 {
-	if(key_p == KEY_SPACE)
-	{
-		clear_all();
-	}
 }
 
 double LineManager::get_score() const
