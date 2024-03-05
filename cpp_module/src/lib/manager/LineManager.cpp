@@ -362,6 +362,7 @@ void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 void LineManager::spawn_turn(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
 	flecs::entity ent = create_empty(ecs, x, y);
+	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
 	{
 		create_cell_half_line_right(ecs, ent, true);
@@ -413,6 +414,7 @@ void LineManager::remove_line(int x, int y)
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
 	flecs::entity ent = create_empty(ecs, x, y);
+	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
 	{
 		create_cell_half_line_right(ecs, ent, true);
@@ -454,7 +456,8 @@ void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_
 
 void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
 {
-	flecs::entity ent = create_empty(ecs, 20, 16);
+	flecs::entity ent = create_empty(ecs, x, y);
+	grid.set(x, y, ent);
 	if(horizontal_p && negative_p)
 	{
 		create_cell_half_line_right(ecs, ent, true);
