@@ -148,25 +148,25 @@ void LineManager::init(int seed_p)
 	create_cell_half_line_right(ecs, ent, false);
 	create_cell_half_line_up(ecs, ent, true);
 
-	flecs::entity cell = grid.get(14, 8);
-	Cell const * cell_component = cell.get<Cell>();
-	flecs::entity cell_line = cell_component->lines[0];
-	cell_line.set<Spawn>({{0}, 0, 0});
+	{
+		TypedArray<int> array_l; array_l.append(0);
+		add_spawn_to_line(14, 8, array_l, 0);
+	}
 
-	cell = grid.get(20, 12);
-	cell_component = cell.get<Cell>();
-	cell_line = cell_component->lines[0];
-	cell_line.set<Spawn>({{1}, 4, 0});
+	{
+		TypedArray<int> array_l; array_l.append(1);
+		add_spawn_to_line(20, 12, array_l, 4);
+	}
 
-	cell = grid.get(24, 16);
-	cell_component = cell.get<Cell>();
-	cell_line = cell_component->lines[0];
-	cell_line.set<Spawn>({{2}, 4, 0});
+	{
+		TypedArray<int> array_l; array_l.append(2);
+		add_spawn_to_line(24, 16, array_l, 4);
+	}
 
-	cell = grid.get(30, 2);
-	cell_component = cell.get<Cell>();
-	cell_line = cell_component->lines[0];
-	cell_line.set<Spawn>({{3}, 4, 0});
+	{
+		TypedArray<int> array_l; array_l.append(3);
+		add_spawn_to_line(30, 2, array_l, 4);
+	}
 
 	merge_all_cells(ecs, grid);
 	create_all_lines(ecs);
@@ -179,15 +179,16 @@ void LineManager::init(int seed_p)
 	flecs::entity storer = ecs.entity("storer").add<Storer>();
 	level.recipes.push_back({{{{0,1}, {3,1}}, 30.}, storer.get_ref<Storer>()});
 
-	cell = grid.get(30, 25);
-	cell_component = cell.get<Cell>();
-	cell_line = cell_component->lines[0];
-	cell_line.set<ConnectedToStorer>({storer});
-
-	cell = grid.get(18, 17);
-	cell_component = cell.get<Cell>();
-	cell_line = cell_component->lines[0];
-	cell_line.set<ConnectedToStorer>({storer});
+	{
+		TypedArray<int> types_l; types_l.append(0);
+		TypedArray<int> qty_l; qty_l.append(1);
+		add_recipe_and_storer_to_line(30, 25, types_l, qty_l, 3.);
+	}
+	{
+		TypedArray<int> types_l; types_l.append(3);
+		TypedArray<int> qty_l; qty_l.append(1);
+		add_recipe_and_storer_to_line(18, 17, types_l, qty_l, 30.);
+	}
 
 
 	// systems
@@ -350,10 +351,34 @@ FramesLibrary *LineManager::getFramesLibrary() const
 
 void LineManager::spawn_line(int x, int y, bool horizontal_p, bool negative_p)
 {
+	flecs::entity ent;
+	if(horizontal_p && negative_p) {
+		ent = create_left(ecs, x, y);
+	}
+	else if(horizontal_p && !negative_p) {
+		ent = create_right(ecs, x, y);
+	}
+	else if(!horizontal_p && negative_p) {
+		ent = create_up(ecs, x, y);
+	}
+	else if(!horizontal_p && !negative_p) {
+		ent = create_down(ecs, x, y);
+	}
+
+	grid.set(x, y, ent);
 }
 
 void LineManager::remove_line(int x, int y)
 {
+	flecs::entity ent = grid.get(x, y);
+
+	if(ent && ent.get<Cell>()) {
+		Cell const &cell_l = *ent.get<Cell>();
+		for(flecs::entity line_ent : cell_l.lines) {
+			line_ent.destruct();
+		}
+		ent.destruct();
+	}
 }
 
 void LineManager::spawn_splitter(int x, int y, bool horizontal_p, bool negative_p, bool flipped_p)
@@ -366,10 +391,38 @@ void LineManager::spawn_merger(int x, int y, bool horizontal_p, bool negative_p,
 
 void LineManager::add_spawn_to_line(int x, int y, TypedArray<int> const &types_p, int spawn_time_p)
 {
+	flecs::entity ent = grid.get(x, y);
+
+	if(ent && ent.get<Cell>() && !ent.get<Cell>()->lines.empty()) {
+		Cell const &cell_l = *ent.get<Cell>();
+		flecs::entity cell_line = cell_l.lines[0];
+		Spawn spawn_l = {{}, spawn_time_p, 0};
+		for(size_t i = 0 ; i < types_p.size() ; ++ i) {
+			spawn_l.types.push_back(types_p[i]);
+		}
+		cell_line.set<Spawn>(spawn_l);
+	}
 }
 
 void LineManager::add_recipe_and_storer_to_line(int x, int y, TypedArray<int> const &types_p, TypedArray<int> const &qty_p, double value_p)
 {
+	Recipe recipe;
+	for(size_t i = 0 ; i < types_p.size() && i < qty_p.size() ; ++ i) {
+		recipe.parts.push_back({types_p[i], qty_p[i]});
+	}
+	recipe.value = value_p;
+
+	flecs::entity storer = ecs.entity().add<Storer>();
+	level.recipes.push_back({recipe, storer.get_ref<Storer>()});
+
+	flecs::entity cell = grid.get(x, y);
+	if(cell && cell.get<Cell>() && !cell.get<Cell>()->lines.empty()) {
+		Cell const * cell_component = cell.get<Cell>();
+		flecs::entity cell_line = cell_component->lines[0];
+		if(cell_line) {
+			cell_line.set<ConnectedToStorer>({storer});
+		}
+	}
 }
 
 void LineManager::set_max_timestamp(int timestamp_p)
