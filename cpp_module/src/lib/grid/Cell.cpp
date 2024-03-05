@@ -21,15 +21,21 @@ std::ostream &operator<<(std::ostream &os_p, CellLine const &line_p)
 	return os_p;
 }
 
+std::ostream &operator<<(std::ostream &os_p, RefCellLine const &line_p)
+{
+	os_p<<line_p.start<<" - > " <<line_p.end;
+	return os_p;
+}
+
 flecs::entity create_cell_line(flecs::world &ecs, Cell &cell_p, flecs::entity ent_cell_p, LinePosition start, LinePosition end)
 {
 	// create line
-	CellLine line_l {start, end, {ent_cell_p}};
+	RefCellLine line_l {start, end, {ent_cell_p}};
 	std::stringstream ss_l;
 	ss_l<<"line"<<start<<"-"<<end;
 	flecs::entity ent_line_l = ecs.entity(ss_l.str().c_str()).set(line_l);
 	// add it to the cell
-	cell_p.lines.push_back(ent_line_l);
+	cell_p.ref_lines.push_back(ent_line_l);
 	return ent_line_l;
 }
 

@@ -32,6 +32,9 @@ void merge_cells(flecs::world &ecs, Cell & a, Cell & b);
 
 void merge_adjacent_cells(flecs::world &ecs, Grid &grid_p, Cell &a);
 
+/// @brief create all CellLine from RefCelLine
+void add_all_cell_lines(flecs::world &ecs);
+
 void merge_all_cells(flecs::world &ecs, Grid &grid_p);
 
 /// @brief link cells with only two lines

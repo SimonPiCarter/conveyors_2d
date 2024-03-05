@@ -24,12 +24,20 @@ struct CellLine {
 	std::vector<flecs::entity> cells;
 };
 
+struct RefCellLine {
+	LinePosition start;
+	LinePosition end;
+	std::vector<flecs::entity> cells;
+};
+
 std::ostream &operator<<(std::ostream &os_p, CellLine const &line_p);
+std::ostream &operator<<(std::ostream &os_p, RefCellLine const &line_p);
 
 struct Cell {
 	uint32_t x = 0;
 	uint32_t y = 0;
 	std::vector<flecs::entity> lines;
+	std::vector<flecs::entity> ref_lines;
 };
 
 flecs::entity create_up(flecs::world &ecs, uint32_t x, uint32_t y);

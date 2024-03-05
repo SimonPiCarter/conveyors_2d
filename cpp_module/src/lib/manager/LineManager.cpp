@@ -168,14 +168,6 @@ void LineManager::init(int seed_p)
 		add_spawn_to_line(30, 2, array_l, 4);
 	}
 
-	merge_all_cells(ecs, grid);
-	create_all_lines(ecs);
-	link_all_simple_cells(ecs);
-	link_all_splitter_cells(ecs);
-	link_all_merger_cells(ecs);
-	tag_all_magnitude(ecs);
-
-
 	flecs::entity storer = ecs.entity("storer").add<Storer>();
 	level.recipes.push_back({{{{0,1}, {3,1}}, 30.}, storer.get_ref<Storer>()});
 
@@ -190,6 +182,13 @@ void LineManager::init(int seed_p)
 		add_recipe_and_storer_to_line(18, 17, types_l, qty_l, 30.);
 	}
 
+	add_all_cell_lines(ecs);
+	merge_all_cells(ecs, grid);
+	create_all_lines(ecs);
+	link_all_simple_cells(ecs);
+	link_all_splitter_cells(ecs);
+	link_all_merger_cells(ecs);
+	tag_all_magnitude(ecs);
 
 	// systems
 
@@ -393,9 +392,9 @@ void LineManager::add_spawn_to_line(int x, int y, TypedArray<int> const &types_p
 {
 	flecs::entity ent = grid.get(x, y);
 
-	if(ent && ent.get<Cell>() && !ent.get<Cell>()->lines.empty()) {
+	if(ent && ent.get<Cell>() && !ent.get<Cell>()->ref_lines.empty()) {
 		Cell const &cell_l = *ent.get<Cell>();
-		flecs::entity cell_line = cell_l.lines[0];
+		flecs::entity cell_line = cell_l.ref_lines[0];
 		Spawn spawn_l = {{}, spawn_time_p, 0};
 		for(size_t i = 0 ; i < types_p.size() ; ++ i) {
 			spawn_l.types.push_back(types_p[i]);
@@ -416,9 +415,9 @@ void LineManager::add_recipe_and_storer_to_line(int x, int y, TypedArray<int> co
 	level.recipes.push_back({recipe, storer.get_ref<Storer>()});
 
 	flecs::entity cell = grid.get(x, y);
-	if(cell && cell.get<Cell>() && !cell.get<Cell>()->lines.empty()) {
+	if(cell && cell.get<Cell>() && !cell.get<Cell>()->ref_lines.empty()) {
 		Cell const * cell_component = cell.get<Cell>();
-		flecs::entity cell_line = cell_component->lines[0];
+		flecs::entity cell_line = cell_component->ref_lines[0];
 		if(cell_line) {
 			cell_line.set<ConnectedToStorer>({storer});
 		}

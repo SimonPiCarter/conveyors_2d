@@ -167,6 +167,37 @@ void merge_adjacent_cells(flecs::world &ecs, Grid &grid_p, Cell &a)
 	}
 }
 
+void add_all_cell_lines(flecs::world &ecs)
+{
+	ecs.defer([&] {
+		ecs.filter<Cell>()
+			.each([&](Cell &cell){
+				for(flecs::entity e : cell.ref_lines) {
+					if(!e) continue;
+					if(!e.get<RefCellLine>()) continue;
+					RefCellLine const *ref_l = e.get<RefCellLine>();
+
+					flecs::entity new_line = ecs.entity();
+					// cell line
+					new_line.set<CellLine>({ref_l->start, ref_l->end, ref_l->cells});
+					// spawn
+					if(e.get<Spawn>())
+					{
+						Spawn spawn_l = *e.get<Spawn>();
+						new_line.set(spawn_l);
+					}
+					// storer
+					if(e.get<ConnectedToStorer>())
+					{
+						ConnectedToStorer co_l = *e.get<ConnectedToStorer>();
+						new_line.set(co_l);
+					}
+					cell.lines.push_back(new_line);
+				}
+			});
+	});
+}
+
 void merge_all_cells(flecs::world &ecs, Grid &grid_p)
 {
 	ecs.filter<Cell>()
