@@ -24,6 +24,15 @@ Score of recipe -> Value x nb of time recipe is made x (multiplier x mult of mul
 
 Create a multiplier of multipliers by combining multiple components.
 
+### Ramp up
+
+Example of ramp up money from balatro :
+-   300 /   450 /   600
+-   800 /  1200 /  1600
+-  6000 /  9000 / 12000
+- 11000 / 16500 / 22000
+- 20000 / 30000 / 40000
+
 ## Bonuses available in shop
 
 ### Common bonuses
