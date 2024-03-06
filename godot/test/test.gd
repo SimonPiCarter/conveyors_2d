@@ -37,8 +37,6 @@ func _ready():
 	new_line.apply_to_run(run_info)
 	new_line = NewLineBonus.gen_bonus(run_info)
 	new_line.apply_to_run(run_info)
-	new_line = NewLineBonus.gen_bonus(run_info)
-	new_line.apply_to_run(run_info)
 
 	spawner_manager.line_manager = line_manager
 	run_info.init(line_manager, spawner_manager)
@@ -75,19 +73,13 @@ func _unhandled_input(event):
 				phase_state.set_phase(PhaseState.Phase.RUNNING)
 
 func _process(_delta):
-	var time_left = 30. - line_manager.get_timestamp()/10.
+	var time_left = 20. - line_manager.get_timestamp()/10.
 	fps_label.text = "fps "+String.num(Engine.get_frames_per_second(), 0)+\
 		"\nscore "+String.num(line_manager.get_score(),0)+\
 		"\ntime "+String.num(time_left,1)+"s"+\
-		"\nstate : "+PhaseState.get_phase_name(phase_state.current_phase)
+		"\nstate : "+PhaseState.get_phase_name(phase_state.current_phase)+\
+		"\nround : "+String.num(run_info.round_count)
 
 	if phase_state.current_phase == PhaseState.Phase.RUNNING and line_manager.is_over():
-		var imp_recipe = ImproveRecipeBonus.gen_bonus(run_info)
-		imp_recipe.apply_to_run(run_info)
-
-		print(NewRecipeBonus.gen_bonus(run_info).template.gen_name())
-		# TMP END
-
-		# TODO set to SCORE
 		phase_state.set_phase(PhaseState.Phase.SCORE)
 
