@@ -51,6 +51,23 @@ Recipe gen_basic_recipe(std::mt19937 &gen_p, int32_t main_part_p, std::vector<in
 	return recipe_l;
 }
 
+double compute_pack_value(RecipePack const &pack_p)
+{
+	double value_l = 0;
+	flecs::ref<Storer> storer_l = pack_p.storer;
+	if(storer_l.try_get())
+	{
+		value_l = compute_value(pack_p.recipe, *storer_l.try_get());
+		if(pack_p.mult_recipe.value > 1e-3)
+		{
+			Storer resiudals_l = compute_residuals(pack_p.recipe, *storer_l.try_get());
+			double mult_l = 1. + compute_value(pack_p.mult_recipe, resiudals_l);
+			value_l *= mult_l;
+		}
+	}
+	return value_l;
+}
+
 std::ostream& operator<<(std::ostream& os_p, Recipe const &recipe_p)
 {
 	os_p<<"Recipe["

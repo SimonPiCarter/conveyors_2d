@@ -32,6 +32,9 @@ Example of ramp up money from balatro :
 -  6000 /  9000 / 12000
 - 11000 / 16500 / 22000
 - 20000 / 30000 / 40000
+- 20000 / 30000 / 40000
+- 20000 / 30000 / 40000
+- 50000 / 70000 / 80000
 
 ## Bonuses available in shop
 
@@ -42,7 +45,6 @@ Example of ramp up money from balatro :
 
 ### Uncommon bonuses
 - New Recipe
-- Bonus Recipe + value : An out of recipe ingredient can be added for an additive bonus
 - Bonus Recipe x value : An out of recipe ingredient can be added for a multiplication bonus
 - Grant money for every N type consumed
 

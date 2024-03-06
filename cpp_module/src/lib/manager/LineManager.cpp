@@ -107,11 +107,7 @@ void LineManager::loop()
 	double score_l = 0;
 	for(RecipePack const &pack_l : level.recipes)
 	{
-		flecs::ref<Storer> storer_l = pack_l.storer;
-		if(storer_l.try_get())
-		{
-			score_l += compute_value(pack_l.recipe, *storer_l.try_get());
-		}
+		score_l += compute_pack_value(pack_l);
 	}
 	score = score_l;
 
@@ -445,7 +441,7 @@ void LineManager::add_recipe_and_storer_to_line(int x, int y, TypedArray<int> co
 	recipe.value = value_p;
 
 	flecs::entity storer = ecs.entity().add<Storer>();
-	level.recipes.push_back({recipe, storer.get_ref<Storer>()});
+	level.recipes.push_back({recipe, Recipe(), storer.get_ref<Storer>()});
 
 	flecs::entity cell = grid.get(x, y);
 	if(cell && cell.get<Cell>() && !cell.get<Cell>()->ref_lines.empty()) {
