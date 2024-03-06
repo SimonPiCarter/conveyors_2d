@@ -1,6 +1,7 @@
 extends Control
 
 var run : RunInfo = null
+var spawner_manager : SpawnerManager = null
 @onready var storer_selected = $VBoxContainer/HBoxContainer/VBoxContainer/storer_selected
 @onready var storer_info = $VBoxContainer/HBoxContainer/VBoxContainer/storer_info
 @onready var recipe_selected = $VBoxContainer/HBoxContainer/VBoxContainer2/recipe_selected
@@ -59,7 +60,7 @@ func update_storer(idx):
 func update_recipe(idx):
 	var recipe = run.recipe_library.values()[idx]
 
-	recipe_info.text = recipe.gen_name()+"\nvalue : "+String.num(recipe.value, 2)
+	recipe_info.text = recipe.gen_visual_description()
 
 func _on_save():
 	if run == null:
@@ -67,3 +68,6 @@ func _on_save():
 	var storer = get_current_storer(storer_selected.selected)
 	if storer:
 		storer.template = run.recipe_library.values()[recipe_selected.selected]
+		if spawner_manager:
+			spawner_manager.add_storer(storer)
+

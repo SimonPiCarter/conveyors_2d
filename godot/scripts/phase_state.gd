@@ -16,6 +16,7 @@ var run_info : RunInfo = null
 @export var score_phase : ScoreStage = null
 @export var shop_phase : ShopStage = null
 @export var line_manager : LineManager = null
+@export var spawner_manager : SpawnerManager = null
 # @export var running_phase : RunningStage = null
 
 func set_phase(new_phase : Phase):
@@ -33,7 +34,7 @@ func set_phase(new_phase : Phase):
 
 	# entering building
 	if new_phase == Phase.BUILDING:
-		run_info.init(line_manager)
+		run_info.init(line_manager, spawner_manager)
 
 	# entering score
 	if new_phase == Phase.SCORE:

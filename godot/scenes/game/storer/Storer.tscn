@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://5qfb1fy8kuyn"]
+
+[ext_resource type="Script" path="res://godot/scenes/game/storer/Storer.gd" id="1_iieh2"]
+
+[node name="Storer" type="Node2D"]
+script = ExtResource("1_iieh2")
+
+[node name="desc" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = -87.0
+offset_right = 110.0
+offset_bottom = 26.0
+mouse_filter = 2
+bbcode_enabled = true
+text = "1x[img]res://godot/sprites/jams/blue.png[/img]
+0.5s"
+
+[node name="Panel" type="Panel" parent="desc"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

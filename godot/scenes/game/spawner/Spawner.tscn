@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://doxe3p1wdxxp2"]
+
+[ext_resource type="Script" path="res://godot/scenes/game/spawner/Spawner.gd" id="1_0c4rd"]
+
+[node name="Spawner" type="Node2D"]
+script = ExtResource("1_0c4rd")
+
+[node name="desc" type="RichTextLabel" parent="."]
+offset_left = 43.0
+offset_right = 108.0
+offset_bottom = 64.0
+mouse_filter = 2
+bbcode_enabled = true
+
+[node name="Panel" type="Panel" parent="desc"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

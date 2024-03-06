@@ -35,8 +35,10 @@ layout_mode = 2
 [node name="storer_selected" type="OptionButton" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="storer_info" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="storer_info" type="RichTextLabel" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
+bbcode_enabled = true
 text = "storer_info"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
@@ -46,8 +48,10 @@ layout_mode = 2
 [node name="recipe_selected" type="OptionButton" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="recipe_info" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+[node name="recipe_info" type="RichTextLabel" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
+bbcode_enabled = true
 text = "recipe_info"
 
 [node name="save" type="Button" parent="VBoxContainer"]

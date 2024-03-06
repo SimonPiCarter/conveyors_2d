@@ -6,6 +6,7 @@ extends Node2D
 @onready var line_manager = $LineManager
 @onready var fps_label = $CanvasLayer/fps_label
 @onready var phase_state = $PhaseState
+@onready var spawner_manager = $SpawnerManager
 
 # phases
 @onready var build_phase = $build_phase
@@ -39,11 +40,13 @@ func _ready():
 	new_line = NewLineBonus.gen_bonus(run_info)
 	new_line.apply_to_run(run_info)
 
-	run_info.init(line_manager)
+	spawner_manager.line_manager = line_manager
+	run_info.init(line_manager, spawner_manager)
 
 	line_manager.init(42)
 
 	build_phase.line_manager = line_manager
+	build_phase.recipe_selector.spawner_manager = spawner_manager
 	build_phase.run_info = run_info
 	build_phase.update_text()
 
