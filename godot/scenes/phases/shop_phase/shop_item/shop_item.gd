@@ -14,10 +14,7 @@ func load_from_bonus(bonus : Bonus):
 	if bonus is ImproveRecipeBonus:
 		label.text = "[center]ImproveRecipeBonus[/center]" \
 			+ "\n" + bonus.template.gen_visual_description()
-		if bonus.add_value > 0:
-			label.text += "\n+ " + String.num(bonus.add_value, 2)
-		if bonus.mult_value > 1:
-			label.text += "\nx " + String.num(bonus.mult_value, 2)
+		label.text += "\n[center]"+String.num(bonus.template.value, 1)+" -> "+String.num(bonus.new_value, 1)+"[/center]"
 	if bonus is NewLineBonus:
 		label.text = "[center]NewLineBonus[/center]" \
 			+ "\n" + bonus.spawn.gen_visual_description() \
