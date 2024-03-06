@@ -36,6 +36,11 @@ func set_phase(new_phase : Phase):
 	if new_phase == Phase.BUILDING:
 		run_info.init(line_manager, spawner_manager)
 
+	# entering running
+	if new_phase == Phase.RUNNING:
+		run_info.round_count += 1
+		run_info.init(line_manager, spawner_manager)
+
 	# entering score
 	if new_phase == Phase.SCORE:
 		score_phase.show()

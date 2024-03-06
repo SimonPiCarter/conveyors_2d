@@ -5,6 +5,8 @@ var recipes : Array[RecipeInfo] = []
 # distance between every spawn
 var step_spawn = 5
 
+var round_count = 0
+
 var recipe_library : Dictionary = {}
 
 func get_or_add_recipe_template(template : RecipeTemplate) -> RecipeTemplate:
